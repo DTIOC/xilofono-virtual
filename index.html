@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xilófono Virtual - Academia de Música IEMS</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🪵 Xilófono Virtual</h1>
+            <h1> Xilófono Virtual</h1>
             <p class="subtitle">Academia de Música - IEMS</p>
         </header>
 
@@ -27,9 +27,9 @@
         </section>
 
         <section class="controls">
-            <button id="btnMode" class="active-mode">🎵 Modo Familiarización</button>
+            <button id="btnMode" class="active-mode"> Modo Familiarización</button>
             <button id="btnPlay">▶️ Escuchar</button>
-            <button id="btnGenerate"> Nueva Melodía</button>
+            <button id="btnGenerate">🔄 Nueva Melodía</button>
             <button id="btnCheck">✅ Verificar</button>
             <button id="btnClear">🗑️ Limpiar</button>
         </section>
@@ -47,7 +47,12 @@
         </section>
 
         <section class="xylophone" id="xylophone">
-            <!-- Las barras se generan con JavaScript -->
+            <div class="xylophone-row" id="sharpRow">
+                <!-- Barras con sostenido (fila superior) -->
+            </div>
+            <div class="xylophone-row" id="naturalRow">
+                <!-- Barras naturales (fila inferior) -->
+            </div>
         </section>
 
         <section class="feedback-section">
@@ -59,6 +64,6 @@
         </section>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
