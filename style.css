@@ -104,11 +104,11 @@ header h1 {
     font-size: 1.2em;
 }
 
-/* XILÓFONO - Barras de madera */
+/* XILÓFONO - Barras de madera organizadas en 2 filas */
 .xylophone {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    grid-template-rows: auto auto;
     gap: 8px;
     padding: 30px 20px;
     background: #1a0f08;
@@ -120,7 +120,6 @@ header h1 {
 
 .bar {
     width: 70px;
-    height: 180px;
     border-radius: 10px;
     cursor: pointer;
     position: relative;
@@ -137,6 +136,7 @@ header h1 {
         0 6px 12px rgba(0,0,0,0.4),
         inset 0 -4px 8px rgba(0,0,0,0.3),
         inset 0 2px 4px rgba(255,255,255,0.2);
+    justify-self: center;
 }
 
 .bar:active,
@@ -145,6 +145,35 @@ header h1 {
     box-shadow: 
         0 2px 4px rgba(0,0,0,0.4),
         inset 0 -2px 4px rgba(0,0,0,0.3);
+}
+
+/* Fila superior: Notas con sostenido (#) */
+.bar.sharp {
+    grid-row: 1;
+    height: 140px;
+}
+
+/* Fila inferior: Notas naturales */
+.bar.natural {
+    grid-row: 2;
+    height: 180px;
+}
+
+/* Barras más cortas para notas agudas (octava 5) */
+.bar.sharp[data-note="C#5"],
+.bar.sharp[data-note="D#5"],
+.bar.sharp[data-note="F#5"],
+.bar.sharp[data-note="G#5"] {
+    height: 110px;
+}
+
+.bar.natural[data-note="C5"],
+.bar.natural[data-note="D5"],
+.bar.natural[data-note="E5"],
+.bar.natural[data-note="F5"],
+.bar.natural[data-note="G5"],
+.bar.natural[data-note="A5"] {
+    height: 140px;
 }
 
 /* Colores de madera para cada nota (de grave a agudo) */
@@ -170,20 +199,6 @@ header h1 {
 .bar[data-note="G5"] { background: linear-gradient(180deg, #8b5a2b 0%, #996515 100%); }
 .bar[data-note="G#5"] { background: linear-gradient(180deg, #7a4f24 0%, #8b5a2b 100%); }
 .bar[data-note="A5"] { background: linear-gradient(180deg, #6b4423 0%, #7a4f24 100%); }
-
-/* Barras más cortas para notas agudas (efecto visual de xilófono real) */
-.bar[data-note="C5"],
-.bar[data-note="C#5"],
-.bar[data-note="D5"],
-.bar[data-note="D#5"],
-.bar[data-note="E5"],
-.bar[data-note="F5"],
-.bar[data-note="F#5"],
-.bar[data-note="G5"],
-.bar[data-note="G#5"],
-.bar[data-note="A5"] {
-    height: 140px;
-}
 
 .bar.correct {
     box-shadow: 0 0 20px #00ff00, 0 6px 12px rgba(0,0,0,0.4);
@@ -227,20 +242,30 @@ header h1 {
 }
 
 @media (max-width: 768px) {
+    .xylophone {
+        grid-template-columns: repeat(7, 1fr);
+    }
     .bar {
         width: 50px;
+    }
+    .bar.sharp {
+        height: 110px;
+    }
+    .bar.natural {
         height: 140px;
     }
-    .bar[data-note="C5"],
-    .bar[data-note="C#5"],
-    .bar[data-note="D5"],
-    .bar[data-note="D#5"],
-    .bar[data-note="E5"],
-    .bar[data-note="F5"],
-    .bar[data-note="F#5"],
-    .bar[data-note="G5"],
-    .bar[data-note="G#5"],
-    .bar[data-note="A5"] {
+    .bar.sharp[data-note="C#5"],
+    .bar.sharp[data-note="D#5"],
+    .bar.sharp[data-note="F#5"],
+    .bar.sharp[data-note="G#5"] {
+        height: 90px;
+    }
+    .bar.natural[data-note="C5"],
+    .bar.natural[data-note="D5"],
+    .bar.natural[data-note="E5"],
+    .bar.natural[data-note="F5"],
+    .bar.natural[data-note="G5"],
+    .bar.natural[data-note="A5"] {
         height: 110px;
     }
     header h1 {
