@@ -1,0 +1,249 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: #f4c430;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.subtitle {
+    color: #d4a574;
+    font-size: 1.1em;
+}
+
+.student-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.student-info input,
+.student-info select {
+    padding: 10px;
+    border: 2px solid #8b6f47;
+    border-radius: 8px;
+    background: #3d2817;
+    color: #fff;
+    font-size: 1em;
+}
+
+.student-info input::placeholder {
+    color: #a0826d;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.controls button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #8b6f47;
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.controls button:hover {
+    background: #a0826d;
+    transform: translateY(-2px);
+}
+
+.controls button.active-mode {
+    background: #f4c430;
+    color: #2c1810;
+    font-weight: bold;
+}
+
+.info-panel {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.info-box {
+    background: #3d2817;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid #8b6f47;
+}
+
+.info-box strong {
+    color: #f4c430;
+    font-size: 1.2em;
+}
+
+/* XILÓFONO - Barras de madera */
+.xylophone {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 30px 20px;
+    background: #1a0f08;
+    border-radius: 15px;
+    border: 4px solid #8b6f47;
+    margin-bottom: 20px;
+    min-height: 200px;
+}
+
+.bar {
+    width: 70px;
+    height: 180px;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 15px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    transition: all 0.1s;
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.4),
+        inset 0 -4px 8px rgba(0,0,0,0.3),
+        inset 0 2px 4px rgba(255,255,255,0.2);
+}
+
+.bar:active,
+.bar.active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.4),
+        inset 0 -2px 4px rgba(0,0,0,0.3);
+}
+
+/* Colores de madera para cada nota (de grave a agudo) */
+.bar[data-note="C4"] { background: linear-gradient(180deg, #8b4513 0%, #654321 100%); }
+.bar[data-note="C#4"] { background: linear-gradient(180deg, #a0522d 0%, #8b4513 100%); }
+.bar[data-note="D4"] { background: linear-gradient(180deg, #cd853f 0%, #a0522d 100%); }
+.bar[data-note="D#4"] { background: linear-gradient(180deg, #d2691e 0%, #cd853f 100%); }
+.bar[data-note="E4"] { background: linear-gradient(180deg, #deb887 0%, #d2691e 100%); }
+.bar[data-note="F4"] { background: linear-gradient(180deg, #f4a460 0%, #deb887 100%); }
+.bar[data-note="F#4"] { background: linear-gradient(180deg, #daa520 0%, #f4a460 100%); }
+.bar[data-note="G4"] { background: linear-gradient(180deg, #b8860b 0%, #daa520 100%); }
+.bar[data-note="G#4"] { background: linear-gradient(180deg, #b87333 0%, #b8860b 100%); }
+.bar[data-note="A4"] { background: linear-gradient(180deg, #a0522d 0%, #b87333 100%); }
+.bar[data-note="A#4"] { background: linear-gradient(180deg, #8b4513 0%, #a0522d 100%); }
+.bar[data-note="B4"] { background: linear-gradient(180deg, #654321 0%, #8b4513 100%); }
+.bar[data-note="C5"] { background: linear-gradient(180deg, #f4c430 0%, #daa520 100%); }
+.bar[data-note="C#5"] { background: linear-gradient(180deg, #e6b800 0%, #f4c430 100%); }
+.bar[data-note="D5"] { background: linear-gradient(180deg, #d4a017 0%, #e6b800 100%); }
+.bar[data-note="D#5"] { background: linear-gradient(180deg, #c49000 0%, #d4a017 100%); }
+.bar[data-note="E5"] { background: linear-gradient(180deg, #b8860b 0%, #c49000 100%); }
+.bar[data-note="F5"] { background: linear-gradient(180deg, #a67c00 0%, #b8860b 100%); }
+.bar[data-note="F#5"] { background: linear-gradient(180deg, #996515 0%, #a67c00 100%); }
+.bar[data-note="G5"] { background: linear-gradient(180deg, #8b5a2b 0%, #996515 100%); }
+.bar[data-note="G#5"] { background: linear-gradient(180deg, #7a4f24 0%, #8b5a2b 100%); }
+.bar[data-note="A5"] { background: linear-gradient(180deg, #6b4423 0%, #7a4f24 100%); }
+
+/* Barras más cortas para notas agudas (efecto visual de xilófono real) */
+.bar[data-note="C5"],
+.bar[data-note="C#5"],
+.bar[data-note="D5"],
+.bar[data-note="D#5"],
+.bar[data-note="E5"],
+.bar[data-note="F5"],
+.bar[data-note="F#5"],
+.bar[data-note="G5"],
+.bar[data-note="G#5"],
+.bar[data-note="A5"] {
+    height: 140px;
+}
+
+.bar.correct {
+    box-shadow: 0 0 20px #00ff00, 0 6px 12px rgba(0,0,0,0.4);
+    border: 3px solid #00ff00;
+}
+
+.bar.incorrect {
+    box-shadow: 0 0 20px #ff0000, 0 6px 12px rgba(0,0,0,0.4);
+    border: 3px solid #ff0000;
+}
+
+.feedback-section {
+    text-align: center;
+}
+
+.feedback {
+    background: #3d2817;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #8b6f47;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.score-display {
+    background: #3d2817;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #f4c430;
+}
+
+.score-value {
+    font-size: 3em;
+    color: #f4c430;
+    font-weight: bold;
+}
+
+.score-text {
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .bar {
+        width: 50px;
+        height: 140px;
+    }
+    .bar[data-note="C5"],
+    .bar[data-note="C#5"],
+    .bar[data-note="D5"],
+    .bar[data-note="D#5"],
+    .bar[data-note="E5"],
+    .bar[data-note="F5"],
+    .bar[data-note="F#5"],
+    .bar[data-note="G5"],
+    .bar[data-note="G#5"],
+    .bar[data-note="A5"] {
+        height: 110px;
+    }
+    header h1 {
+        font-size: 1.8em;
+    }
+}
