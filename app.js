@@ -8,7 +8,7 @@ class XylophoneApp {
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
         // ️ IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
-        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVO_WEBHOOK_AQUI/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbzuC1XKAvMuyTL_BUUHFYCsGBixVEXVH0kIszeTn3j47JU8jmYGwTKm_DLYBjE29Q0/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
