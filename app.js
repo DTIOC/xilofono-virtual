@@ -1,14 +1,14 @@
 class XylophoneApp {
     constructor() {
-        this.synth = null;
+        this.sampler = null;
         this.isAudioReady = false;
         this.xylophone = document.getElementById('xylophone');
         this.currentMelody = [];
         this.userMelody = [];
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
-        // IMPORTANTE: Reemplaza esta URL con la NUEVA que obtengas al crear la nueva implementación en Apps Script
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycbxm0y--lAmYDw-muE3Kn0HtjhoDVjxWn6Yri-Mrz4c2l7ICFh-paZhhSHf8ZoemV4a2/exec';
+        // ⚠️ Reemplaza esta URL con tu webhook real de Google Apps Script
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbwDH28-ogn4VkjIjtaqPw-SQlj1cCvdfrByd_Q6E-VWf8-pe07fD0gtweto-ovz0nJ2/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
@@ -26,25 +26,46 @@ class XylophoneApp {
     }
     
     async initAudio() {
-        if (!this.synth) {
+        if (!this.sampler) {
             await Tone.start();
             
-            this.synth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "sine" },
-                envelope: { 
-                    attack: 0.001,
-                    decay: 0.3,
-                    sustain: 0,
-                    release: 0.5
+            // 🔊 Sampler con sonidos reales de xilófono
+            this.sampler = new Tone.Sampler({
+                urls: {
+                    "C4": "C4.wav",
+                    "C#4": "C#4.wav",
+                    "D4": "D4.wav",
+                    "D#4": "D#4.wav",
+                    "E4": "E4.wav",
+                    "F4": "F4.wav",
+                    "F#4": "F#4.wav",
+                    "G4": "G4.wav",
+                    "G#4": "G#4.wav",
+                    "A4": "A4.wav",
+                    "A#4": "A#4.wav",
+                    "B4": "B4.wav",
+                    "C5": "C5.wav",
+                    "C#5": "C#5.wav",
+                    "D5": "D5.wav",
+                    "D#5": "D#5.wav",
+                    "E5": "E5.wav",
+                    "F5": "F5.wav",
+                    "F#5": "F#5.wav",
+                    "G5": "G5.wav",
+                    "G#5": "G#5.wav",
+                    "A5": "A5.wav"
                 },
-                volume: -3
+                baseUrl: "./samples/xilofono/",
+                volume: -3,
+                onload: () => {
+                    console.log("✅ Sonidos reales de xilófono cargados");
+                    this.isAudioReady = true;
+                }
             }).toDestination();
             
+            // Reverb para simular resonancia de madera
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).toDestination();
-            this.synth.connect(reverb);
-            
-            this.isAudioReady = true;
-            console.log("✅ Xilófono sintético cargado");
+            this.sampler.connect(reverb);
         }
         
         if (!this.isAudioReady) {
@@ -157,7 +178,7 @@ class XylophoneApp {
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -202,14 +223,14 @@ class XylophoneApp {
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = ' Escuchando...';
+        feedback.textContent = '🎵 Escuchando...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
         
         if (this.isSimultaneous) {
             this.currentMelody.forEach((note) => {
-                this.synth.triggerAttackRelease(note, '2n', now);
+                this.sampler.triggerAttackRelease(note, '2n', now);
             });
             setTimeout(() => {
                 feedback.textContent = '✅ Ahora toca las notas simultáneamente (acorde/intervalo)';
@@ -217,7 +238,7 @@ class XylophoneApp {
             }, 1500);
         } else {
             this.currentMelody.forEach((note, index) => {
-                this.synth.triggerAttackRelease(note, '8n', now + (index * 0.6));
+                this.sampler.triggerAttackRelease(note, '8n', now + (index * 0.6));
             });
             setTimeout(() => {
                 feedback.textContent = '✅ Ahora repite la melodía en el xilófono';
@@ -229,7 +250,7 @@ class XylophoneApp {
     async handleKeyPress(note, keyElement) {
         await this.initAudio();
         
-        this.synth.triggerAttackRelease(note, '8n');
+        this.sampler.triggerAttackRelease(note, '8n');
         keyElement.classList.add('active');
         setTimeout(() => keyElement.classList.remove('active'), 200);
         this.userMelody.push(note);
@@ -390,7 +411,6 @@ class XylophoneApp {
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
         
-        // Crear un objeto FormData en lugar de JSON
         const formData = new FormData();
         formData.append('timestamp', new Date().toISOString());
         formData.append('email', email || 'No especificado');
@@ -412,7 +432,7 @@ class XylophoneApp {
         try {
             const response = await fetch(this.webhookURL, {
                 method: 'POST',
-                body: formData  // Enviamos FormData en lugar de JSON
+                body: formData
             });
             
             const result = await response.text();
