@@ -5,9 +5,11 @@ class XylophoneApp {
         this.xylophone = document.getElementById('xylophone');
         this.currentMelody = [];
         this.userMelody = [];
+        
+        // Tone.js necesita los nombres estándar con '#' para afinar correctamente
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
-        // ⚠️ Reemplaza esta URL con tu webhook real de Google Apps Script
+        // Tu webhook de Google Sheets
         this.webhookURL = 'https://script.google.com/macros/s/AKfycbwDH28-ogn4VkjIjtaqPw-SQlj1cCvdfrByd_Q6E-VWf8-pe07fD0gtweto-ovz0nJ2/exec';
         
         this.currentLevel = 1;
@@ -30,40 +32,44 @@ class XylophoneApp {
             await Tone.start();
             
             // 🔊 Sampler con sonidos reales de xilófono
+            // Mapeo: Tone.js pide "C#4", pero carga el archivo "Cs4.wav" para evitar errores de URL
             this.sampler = new Tone.Sampler({
                 urls: {
                     "C4": "C4.wav",
-                    "C#4": "C#4.wav",
+                    "C#4": "Cs4.wav",
                     "D4": "D4.wav",
-                    "D#4": "D#4.wav",
+                    "D#4": "Ds4.wav",
                     "E4": "E4.wav",
                     "F4": "F4.wav",
-                    "F#4": "F#4.wav",
+                    "F#4": "Fs4.wav",
                     "G4": "G4.wav",
-                    "G#4": "G#4.wav",
+                    "G#4": "Gs4.wav",
                     "A4": "A4.wav",
-                    "A#4": "A#4.wav",
+                    "A#4": "As4.wav",
                     "B4": "B4.wav",
                     "C5": "C5.wav",
-                    "C#5": "C#5.wav",
+                    "C#5": "Cs5.wav",
                     "D5": "D5.wav",
-                    "D#5": "D#5.wav",
+                    "D#5": "Ds5.wav",
                     "E5": "E5.wav",
                     "F5": "F5.wav",
-                    "F#5": "F#5.wav",
+                    "F#5": "Fs5.wav",
                     "G5": "G5.wav",
-                    "G#5": "G#5.wav",
+                    "G#5": "Gs5.wav",
                     "A5": "A5.wav"
                 },
                 baseUrl: "./samples/xilofono/",
                 volume: -3,
                 onload: () => {
-                    console.log("✅ Sonidos reales de xilófono cargados");
+                    console.log("✅ Sonidos reales de xilófono cargados correctamente");
                     this.isAudioReady = true;
+                },
+                onerror: (error) => {
+                    console.error("❌ Error al cargar los archivos de audio:", error);
                 }
             }).toDestination();
             
-            // Reverb para simular resonancia de madera
+            // Reverb para simular la resonancia de la madera
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).toDestination();
             this.sampler.connect(reverb);
         }
@@ -89,6 +95,7 @@ class XylophoneApp {
             'C#5': 7, 'D#5': 8, 'F#5': 10, 'G#5': 11
         };
         
+        // Crear teclas naturales
         naturalNotes.forEach((note, index) => {
             const key = document.createElement('div');
             key.className = 'natural-key';
@@ -115,6 +122,7 @@ class XylophoneApp {
             this.xylophone.appendChild(key);
         });
         
+        // Crear teclas con sostenido y posicionarlas
         setTimeout(() => {
             Object.keys(sharpPositions).forEach((sharpNote) => {
                 const position = sharpPositions[sharpNote];
@@ -172,13 +180,13 @@ class XylophoneApp {
         this.isFamiliarizing = !this.isFamiliarizing;
         const btn = document.getElementById('btnMode');
         if (this.isFamiliarizing) {
-            btn.textContent = '🎵 Modo Familiarización';
+            btn.textContent = ' Modo Familiarización';
             btn.classList.add('active-mode');
             document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -223,7 +231,7 @@ class XylophoneApp {
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = '🎵 Escuchando...';
+        feedback.textContent = ' Escuchando...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
@@ -288,7 +296,7 @@ class XylophoneApp {
         const group = document.getElementById('studentGroup').value.trim();
         
         if (!email || !name || !group) {
-            alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo).');
+            alert('️ Por favor, completa todos los campos (correo, nombre y grupo).');
             document.getElementById('studentEmail').focus();
             return;
         }
@@ -318,7 +326,7 @@ class XylophoneApp {
                 this.successStreak = 0;
                 alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
             } else if (this.currentLevel === 4 && this.successStreak >= 2) {
-                alert(' ¡Increíble! Has completado todos los niveles de entrenamiento.');
+                alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento.');
             }
         } else {
             this.successStreak = 0;
@@ -360,9 +368,9 @@ class XylophoneApp {
         scoreDisplay.style.display = 'block';
         document.getElementById('scoreValue').textContent = score.percentage;
         
-        let text = ' Sigue practicando, ¡tú puedes!';
-        if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) text = ' ¡Muy bien! Casi perfecto';
+        let text = '💪 Sigue practicando, ¡tú puedes!';
+        if (score.percentage === 100) text = ' ¡Perfecto! ¡Excelente oído musical!';
+        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
         
         document.getElementById('feedbackText').textContent = text;
@@ -427,7 +435,7 @@ class XylophoneApp {
         formData.append('userMelody', this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
         formData.append('correctMelody', this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
         
-        console.log('📤 Enviando datos a:', this.webhookURL);
+        console.log(' Enviando datos a:', this.webhookURL);
         
         try {
             const response = await fetch(this.webhookURL, {
