@@ -7,8 +7,8 @@ class XylophoneApp {
         this.userMelody = [];
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
-        // ️ IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycbzuC1XKAvMuyTL_BUUHFYCsGBixVEXVH0kIszeTn3j47JU8jmYGwTKm_DLYBjE29Q0/exec';
+        // IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
+        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVO_WEBHOOK_AQUI/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
@@ -69,6 +69,13 @@ class XylophoneApp {
             bar.dataset.note = note;
             bar.textContent = noteLabels[note] || note;
             
+            // Asignar clase según si es sostenido o natural
+            if (note.includes('#')) {
+                bar.classList.add('sharp');
+            } else {
+                bar.classList.add('natural');
+            }
+            
             bar.addEventListener('mousedown', () => this.handleKeyPress(note, bar));
             bar.addEventListener('touchstart', (e) => {
                 e.preventDefault();
@@ -92,11 +99,11 @@ class XylophoneApp {
         if (this.isFamiliarizing) {
             btn.textContent = '🎵 Modo Familiarización';
             btn.classList.add('active-mode');
-            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
+            document.getElementById('feedback').textContent = ' Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -282,86 +289,4 @@ class XylophoneApp {
         let text = '💪 Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
         else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
-        else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
-        
-        document.getElementById('feedbackText').textContent = text;
-        
-        const userNotesSpanish = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
-        const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? ' + ' : ' - ');
-        
-        document.getElementById('feedback').innerHTML = `
-            Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>
-            <small>Tocaste: ${userNotesSpanish}</small><br>
-            <small>Era: ${correctNotesSpanish}</small>
-        `;
-    }
-    
-    highlightKeys() {
-        this.clearKeyboardHighlights();
-        
-        if (this.isSimultaneous) {
-            this.userMelody.forEach(note => {
-                const barElement = document.querySelector(`[data-note="${note}"]`);
-                if (barElement && this.currentMelody.includes(note)) {
-                    barElement.classList.add('correct');
-                } else if (barElement) {
-                    barElement.classList.add('incorrect');
-                }
-            });
-            this.currentMelody.forEach(note => {
-                if (!this.userMelody.includes(note)) {
-                    const barElement = document.querySelector(`[data-note="${note}"]`);
-                    if (barElement) barElement.classList.add('incorrect');
-                }
-            });
-        } else {
-            this.userMelody.forEach((note, index) => {
-                const barElement = document.querySelector(`[data-note="${note}"]`);
-                if (barElement) {
-                    if (this.currentMelody[index] === note) barElement.classList.add('correct');
-                    else barElement.classList.add('incorrect');
-                }
-            });
-        }
-    }
-    
-    async saveToGoogleSheets(score) {
-        const email = document.getElementById('studentEmail').value.trim();
-        const name = document.getElementById('studentName').value.trim();
-        const group = document.getElementById('studentGroup').value.trim();
-        const teacher = document.getElementById('studentTeacher').value.trim();
-        
-        const data = {
-            timestamp: new Date().toISOString(),
-            email: email || 'No especificado',
-            name: name || 'No especificado',
-            group: group || 'No especificado',
-            teacher: teacher || 'No especificado',
-            nivel: this.currentLevel,
-            modo: 'Evaluación',
-            tipoEjercicio: this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico',
-            melodyLength: this.currentMelody.length,
-            score: score.percentage,
-            correctNotes: score.correctNotes,
-            totalNotes: score.totalNotes,
-            userMelody: this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'),
-            correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
-        };
-        
-        try {
-            await fetch(this.webhookURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            console.log('✅ Resultado guardado');
-        } catch (error) {
-            console.error('❌ Error al guardar:', error);
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new XylophoneApp();
-});
+        else if (score.percentage >= 60) text = '👍 Bien, sigue practic
