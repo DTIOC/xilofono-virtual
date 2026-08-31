@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -104,34 +104,29 @@ header h1 {
     font-size: 1.2em;
 }
 
-/* XILÓFONO - Dos filas separadas */
+/* XILÓFONO - Estilo piano con sostenidos entre naturales */
 .xylophone {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    justify-content: center;
     padding: 30px 20px;
     background: #1a0f08;
     border-radius: 15px;
     border: 4px solid #8b6f47;
     margin-bottom: 20px;
+    min-height: 250px;
 }
 
-.xylophone-row {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    min-height: 100px;
-}
-
-.bar {
-    width: 70px;
-    border-radius: 10px;
+.natural-key {
+    width: 80px;
+    height: 200px;
+    border-radius: 0 0 10px 10px;
     cursor: pointer;
     position: relative;
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     padding-bottom: 15px;
     font-weight: bold;
     font-size: 0.9em;
@@ -142,75 +137,95 @@ header h1 {
         0 6px 12px rgba(0,0,0,0.4),
         inset 0 -4px 8px rgba(0,0,0,0.3),
         inset 0 2px 4px rgba(255,255,255,0.2);
+    margin: 0 2px;
+    z-index: 1;
 }
 
-.bar:active,
-.bar.active {
+.natural-key:active,
+.natural-key.active {
     transform: translateY(4px);
     box-shadow: 
         0 2px 4px rgba(0,0,0,0.4),
         inset 0 -2px 4px rgba(0,0,0,0.3);
 }
 
-/* Fila superior: Notas con sostenido (#) - más cortas */
-#sharpRow .bar {
-    height: 140px;
+.sharp-key {
+    width: 50px;
+    height: 130px;
+    border-radius: 0 0 8px 8px;
+    cursor: pointer;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    transition: all 0.1s;
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.4),
+        inset 0 -4px 8px rgba(0,0,0,0.3),
+        inset 0 2px 4px rgba(255,255,255,0.2);
+    z-index: 2;
 }
 
-/* Fila inferior: Notas naturales - más largas */
-#naturalRow .bar {
-    height: 180px;
+.sharp-key:active,
+.sharp-key.active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.4),
+        inset 0 -2px 4px rgba(0,0,0,0.3);
 }
 
-/* Barras más cortas para notas agudas (octava 5) */
-#sharpRow .bar[data-note="C#5"],
-#sharpRow .bar[data-note="D#5"],
-#sharpRow .bar[data-note="F#5"],
-#sharpRow .bar[data-note="G#5"] {
-    height: 110px;
-}
+/* Colores de madera para notas naturales */
+.natural-key[data-note="C4"] { background: linear-gradient(180deg, #8b4513 0%, #654321 100%); }
+.natural-key[data-note="D4"] { background: linear-gradient(180deg, #cd853f 0%, #a0522d 100%); }
+.natural-key[data-note="E4"] { background: linear-gradient(180deg, #deb887 0%, #d2691e 100%); }
+.natural-key[data-note="F4"] { background: linear-gradient(180deg, #f4a460 0%, #deb887 100%); }
+.natural-key[data-note="G4"] { background: linear-gradient(180deg, #b8860b 0%, #daa520 100%); }
+.natural-key[data-note="A4"] { background: linear-gradient(180deg, #a0522d 0%, #b87333 100%); }
+.natural-key[data-note="B4"] { background: linear-gradient(180deg, #654321 0%, #8b4513 100%); }
+.natural-key[data-note="C5"] { background: linear-gradient(180deg, #f4c430 0%, #daa520 100%); }
+.natural-key[data-note="D5"] { background: linear-gradient(180deg, #d4a017 0%, #e6b800 100%); }
+.natural-key[data-note="E5"] { background: linear-gradient(180deg, #b8860b 0%, #c49000 100%); }
+.natural-key[data-note="F5"] { background: linear-gradient(180deg, #a67c00 0%, #b8860b 100%); }
+.natural-key[data-note="G5"] { background: linear-gradient(180deg, #8b5a2b 0%, #996515 100%); }
+.natural-key[data-note="A5"] { background: linear-gradient(180deg, #6b4423 0%, #7a4f24 100%); }
 
-#naturalRow .bar[data-note="C5"],
-#naturalRow .bar[data-note="D5"],
-#naturalRow .bar[data-note="E5"],
-#naturalRow .bar[data-note="F5"],
-#naturalRow .bar[data-note="G5"],
-#naturalRow .bar[data-note="A5"] {
-    height: 140px;
-}
+/* Colores de madera para notas con sostenido */
+.sharp-key[data-note="C#4"] { background: linear-gradient(180deg, #a0522d 0%, #8b4513 100%); }
+.sharp-key[data-note="D#4"] { background: linear-gradient(180deg, #d2691e 0%, #cd853f 100%); }
+.sharp-key[data-note="F#4"] { background: linear-gradient(180deg, #daa520 0%, #f4a460 100%); }
+.sharp-key[data-note="G#4"] { background: linear-gradient(180deg, #b87333 0%, #b8860b 100%); }
+.sharp-key[data-note="A#4"] { background: linear-gradient(180deg, #8b4513 0%, #a0522d 100%); }
+.sharp-key[data-note="C#5"] { background: linear-gradient(180deg, #e6b800 0%, #f4c430 100%); }
+.sharp-key[data-note="D#5"] { background: linear-gradient(180deg, #c49000 0%, #d4a017 100%); }
+.sharp-key[data-note="F#5"] { background: linear-gradient(180deg, #996515 0%, #a67c00 100%); }
+.sharp-key[data-note="G#5"] { background: linear-gradient(180deg, #7a4f24 0%, #8b5a2b 100%); }
 
-/* Colores de madera para cada nota */
-.bar[data-note="C4"] { background: linear-gradient(180deg, #8b4513 0%, #654321 100%); }
-.bar[data-note="C#4"] { background: linear-gradient(180deg, #a0522d 0%, #8b4513 100%); }
-.bar[data-note="D4"] { background: linear-gradient(180deg, #cd853f 0%, #a0522d 100%); }
-.bar[data-note="D#4"] { background: linear-gradient(180deg, #d2691e 0%, #cd853f 100%); }
-.bar[data-note="E4"] { background: linear-gradient(180deg, #deb887 0%, #d2691e 100%); }
-.bar[data-note="F4"] { background: linear-gradient(180deg, #f4a460 0%, #deb887 100%); }
-.bar[data-note="F#4"] { background: linear-gradient(180deg, #daa520 0%, #f4a460 100%); }
-.bar[data-note="G4"] { background: linear-gradient(180deg, #b8860b 0%, #daa520 100%); }
-.bar[data-note="G#4"] { background: linear-gradient(180deg, #b87333 0%, #b8860b 100%); }
-.bar[data-note="A4"] { background: linear-gradient(180deg, #a0522d 0%, #b87333 100%); }
-.bar[data-note="A#4"] { background: linear-gradient(180deg, #8b4513 0%, #a0522d 100%); }
-.bar[data-note="B4"] { background: linear-gradient(180deg, #654321 0%, #8b4513 100%); }
-.bar[data-note="C5"] { background: linear-gradient(180deg, #f4c430 0%, #daa520 100%); }
-.bar[data-note="C#5"] { background: linear-gradient(180deg, #e6b800 0%, #f4c430 100%); }
-.bar[data-note="D5"] { background: linear-gradient(180deg, #d4a017 0%, #e6b800 100%); }
-.bar[data-note="D#5"] { background: linear-gradient(180deg, #c49000 0%, #d4a017 100%); }
-.bar[data-note="E5"] { background: linear-gradient(180deg, #b8860b 0%, #c49000 100%); }
-.bar[data-note="F5"] { background: linear-gradient(180deg, #a67c00 0%, #b8860b 100%); }
-.bar[data-note="F#5"] { background: linear-gradient(180deg, #996515 0%, #a67c00 100%); }
-.bar[data-note="G5"] { background: linear-gradient(180deg, #8b5a2b 0%, #996515 100%); }
-.bar[data-note="G#5"] { background: linear-gradient(180deg, #7a4f24 0%, #8b5a2b 100%); }
-.bar[data-note="A5"] { background: linear-gradient(180deg, #6b4423 0%, #7a4f24 100%); }
-
-.bar.correct {
+.natural-key.correct,
+.sharp-key.correct {
     box-shadow: 0 0 20px #00ff00, 0 6px 12px rgba(0,0,0,0.4);
     border: 3px solid #00ff00;
 }
 
-.bar.incorrect {
+.natural-key.incorrect,
+.sharp-key.incorrect {
     box-shadow: 0 0 20px #ff0000, 0 6px 12px rgba(0,0,0,0.4);
     border: 3px solid #ff0000;
+}
+
+.note-label {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.note-index {
+    font-size: 0.75em;
+    opacity: 0.8;
 }
 
 .feedback-section {
@@ -221,4 +236,39 @@ header h1 {
     background: #3d2817;
     padding: 15px;
     border-radius: 10px;
-    border: 2px solid #8b6f
+    border: 2px solid #8b6f47;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.score-display {
+    background: #3d2817;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #f4c430;
+}
+
+.score-value {
+    font-size: 3em;
+    color: #f4c430;
+    font-weight: bold;
+}
+
+.score-text {
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .natural-key {
+        width: 60px;
+        height: 160px;
+    }
+    .sharp-key {
+        width: 40px;
+        height: 100px;
+    }
+    header h1 {
+        font-size: 1.8em;
+    }
+}
