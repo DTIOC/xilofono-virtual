@@ -8,7 +8,7 @@ class XylophoneApp {
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
         // IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
-        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVO_WEBHOOK_AQUI/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbzuC1XKAvMuyTL_BUUHFYCsGBixVEXVH0kIszeTn3j47JU8jmYGwTKm_DLYBjE29Q0/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
@@ -29,7 +29,6 @@ class XylophoneApp {
         if (!this.synth) {
             await Tone.start();
             
-            // Sonido sintético de xilófono (percusivo, brillante)
             this.synth = new Tone.PolySynth(Tone.Synth, {
                 oscillator: { type: "sine" },
                 envelope: { 
@@ -41,7 +40,6 @@ class XylophoneApp {
                 volume: -3
             }).toDestination();
             
-            // Reverb para simular resonancia de barras de madera
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).toDestination();
             this.synth.connect(reverb);
             
@@ -70,7 +68,6 @@ class XylophoneApp {
             'C#5': 7, 'D#5': 8, 'F#5': 10, 'G#5': 11
         };
         
-        // Crear teclas naturales primero
         naturalNotes.forEach((note, index) => {
             const key = document.createElement('div');
             key.className = 'natural-key';
@@ -97,7 +94,6 @@ class XylophoneApp {
             this.xylophone.appendChild(key);
         });
         
-        // Esperar a que el layout se complete, luego posicionar los sostenidos
         setTimeout(() => {
             Object.keys(sharpPositions).forEach((sharpNote) => {
                 const position = sharpPositions[sharpNote];
@@ -110,7 +106,6 @@ class XylophoneApp {
                     const rightRect = rightKey.getBoundingClientRect();
                     const containerRect = this.xylophone.getBoundingClientRect();
                     
-                    // Calcular el punto medio entre las dos teclas naturales
                     const centerX = (leftRect.right + rightRect.left) / 2;
                     const relativeX = centerX - containerRect.left;
                     
@@ -129,7 +124,6 @@ class XylophoneApp {
                     key.appendChild(label);
                     key.appendChild(idx);
                     
-                    // Posicionar la tecla sostenida centrada entre las naturales
                     const sharpWidth = 50;
                     key.style.left = `${relativeX - (sharpWidth / 2)}px`;
                     
@@ -159,7 +153,7 @@ class XylophoneApp {
         if (this.isFamiliarizing) {
             btn.textContent = '🎵 Modo Familiarización';
             btn.classList.add('active-mode');
-            document.getElementById('feedback').textContent = ' Modo Práctica: Toca libremente. No se guardan resultados.';
+            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
@@ -271,16 +265,16 @@ class XylophoneApp {
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
-        const teacher = document.getElementById('studentTeacher').value.trim();
         
-        if (!email || !name || !group || !teacher) {
-            alert('⚠️ Completa todos los campos, incluyendo seleccionar tu profesor.');
-            document.getElementById('studentTeacher').focus();
+        // ✅ CAMBIO: Ya no se requiere el profesor
+        if (!email || !name || !group) {
+            alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo).');
+            document.getElementById('studentEmail').focus();
             return;
         }
         
         if (this.userMelody.length === 0) {
-            document.getElementById('feedback').textContent = '️ Primero toca algunas notas';
+            document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas';
             return;
         }
         
@@ -348,8 +342,8 @@ class XylophoneApp {
         
         let text = '💪 Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
-        else if (score.percentage >= 60) text = ' Bien, sigue practicando';
+        else if (score.percentage >= 80) text = ' ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
         
         document.getElementById('feedbackText').textContent = text;
         
@@ -396,14 +390,13 @@ class XylophoneApp {
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
-        const teacher = document.getElementById('studentTeacher').value.trim();
         
         const data = {
             timestamp: new Date().toISOString(),
             email: email || 'No especificado',
             name: name || 'No especificado',
             group: group || 'No especificado',
-            teacher: teacher || 'No especificado',
+            teacher: 'Óscar', // ✅ Se asigna automáticamente tu nombre
             nivel: this.currentLevel,
             modo: 'Evaluación',
             tipoEjercicio: this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico',
@@ -424,7 +417,7 @@ class XylophoneApp {
             });
             console.log('✅ Resultado guardado');
         } catch (error) {
-            console.error(' Error al guardar:', error);
+            console.error('❌ Error al guardar:', error);
         }
     }
 }
