@@ -7,8 +7,8 @@ class XylophoneApp {
         this.userMelody = [];
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
-        // IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycbzuC1XKAvMuyTL_BUUHFYCsGBixVEXVH0kIszeTn3j47JU8jmYGwTKm_DLYBjE29Q0/exec';
+        // IMPORTANTE: Reemplaza esta URL con la NUEVA que obtengas al crear la nueva implementación en Apps Script
+        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVA_URL_AQUI/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
@@ -157,7 +157,7 @@ class XylophoneApp {
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -202,7 +202,7 @@ class XylophoneApp {
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = '🎵 Escuchando...';
+        feedback.textContent = ' Escuchando...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
@@ -266,7 +266,6 @@ class XylophoneApp {
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
         
-        // ✅ CAMBIO: Ya no se requiere el profesor
         if (!email || !name || !group) {
             alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo).');
             document.getElementById('studentEmail').focus();
@@ -298,7 +297,7 @@ class XylophoneApp {
                 this.successStreak = 0;
                 alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
             } else if (this.currentLevel === 4 && this.successStreak >= 2) {
-                alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento.');
+                alert(' ¡Increíble! Has completado todos los niveles de entrenamiento.');
             }
         } else {
             this.successStreak = 0;
@@ -340,7 +339,7 @@ class XylophoneApp {
         scoreDisplay.style.display = 'block';
         document.getElementById('scoreValue').textContent = score.percentage;
         
-        let text = '💪 Sigue practicando, ¡tú puedes!';
+        let text = ' Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
         else if (score.percentage >= 80) text = ' ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
@@ -391,30 +390,35 @@ class XylophoneApp {
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
         
-        const data = {
-            timestamp: new Date().toISOString(),
-            email: email || 'No especificado',
-            name: name || 'No especificado',
-            group: group || 'No especificado',
-            teacher: 'Óscar', // ✅ Se asigna automáticamente tu nombre
-            nivel: this.currentLevel,
-            modo: 'Evaluación',
-            tipoEjercicio: this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico',
-            melodyLength: this.currentMelody.length,
-            score: score.percentage,
-            correctNotes: score.correctNotes,
-            totalNotes: score.totalNotes,
-            userMelody: this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'),
-            correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
-        };
+        // Crear un objeto FormData en lugar de JSON
+        const formData = new FormData();
+        formData.append('timestamp', new Date().toISOString());
+        formData.append('email', email || 'No especificado');
+        formData.append('name', name || 'No especificado');
+        formData.append('group', group || 'No especificado');
+        formData.append('teacher', 'Óscar');
+        formData.append('nivel', this.currentLevel);
+        formData.append('modo', 'Evaluación');
+        formData.append('tipoEjercicio', this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico');
+        formData.append('melodyLength', this.currentMelody.length);
+        formData.append('score', score.percentage);
+        formData.append('correctNotes', score.correctNotes);
+        formData.append('totalNotes', score.totalNotes);
+        formData.append('userMelody', this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
+        formData.append('correctMelody', this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
+        
+        console.log('📤 Enviando datos a:', this.webhookURL);
         
         try {
-               await fetch(this.webhookURL, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify(data)
-   });
+            const response = await fetch(this.webhookURL, {
+                method: 'POST',
+                body: formData  // Enviamos FormData en lugar de JSON
+            });
+            
+            const result = await response.text();
+            console.log('📥 Respuesta del servidor:', result);
             console.log('✅ Resultado guardado');
+            
         } catch (error) {
             console.error('❌ Error al guardar:', error);
         }
