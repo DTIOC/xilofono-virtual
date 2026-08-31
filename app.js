@@ -8,7 +8,7 @@ class XylophoneApp {
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
         // IMPORTANTE: Reemplaza esta URL con la NUEVA que obtengas al crear la nueva implementación en Apps Script
-        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVA_URL_AQUI/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbwDH28-ogn4VkjIjtaqPw-SQlj1cCvdfrByd_Q6E-VWf8-pe07fD0gtweto-ovz0nJ2/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
