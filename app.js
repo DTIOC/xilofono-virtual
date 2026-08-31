@@ -8,7 +8,7 @@ class XylophoneApp {
         this.scaleNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
         
         // IMPORTANTE: Necesitarás crear un nuevo webhook para esta app
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycbzuC1XKAvMuyTL_BUUHFYCsGBixVEXVH0kIszeTn3j47JU8jmYGwTKm_DLYBjE29Q0/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/TU_NUEVO_WEBHOOK_AQUI/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
@@ -63,20 +63,11 @@ class XylophoneApp {
             'G#5': 'Sol#', 'A5': 'La'
         };
         
-        // Orden de las notas naturales (sin sostenidos)
         const naturalNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5'];
         
-        // Mapeo de sostenidos a su posición (entre qué notas naturales van)
         const sharpPositions = {
-            'C#4': 0,  // Entre C4 (índice 0) y D4 (índice 1)
-            'D#4': 1,  // Entre D4 (índice 1) y E4 (índice 2)
-            'F#4': 3,  // Entre F4 (índice 3) y G4 (índice 4)
-            'G#4': 4,  // Entre G4 (índice 4) y A4 (índice 5)
-            'A#4': 5,  // Entre A4 (índice 5) y B4 (índice 6)
-            'C#5': 7,  // Entre C5 (índice 7) y D5 (índice 8)
-            'D#5': 8,  // Entre D5 (índice 8) y E5 (índice 9)
-            'F#5': 10, // Entre F5 (índice 10) y G5 (índice 11)
-            'G#5': 11  // Entre G5 (índice 11) y A5 (índice 12)
+            'C#4': 0, 'D#4': 1, 'F#4': 3, 'G#4': 4, 'A#4': 5,
+            'C#5': 7, 'D#5': 8, 'F#5': 10, 'G#5': 11
         };
         
         // Crear teclas naturales primero
@@ -106,41 +97,52 @@ class XylophoneApp {
             this.xylophone.appendChild(key);
         });
         
-        // Crear teclas con sostenido y posicionarlas absolutamente
-        Object.keys(sharpPositions).forEach((sharpNote) => {
-            const position = sharpPositions[sharpNote];
-            const key = document.createElement('div');
-            key.className = 'sharp-key';
-            key.dataset.note = sharpNote;
-            key.dataset.index = position + 1.5; // Índice decimal para mostrar posición
-            
-            const label = document.createElement('span');
-            label.className = 'note-label';
-            label.textContent = noteLabels[sharpNote];
-            
-            const idx = document.createElement('span');
-            idx.className = 'note-index';
-            idx.textContent = `${position + 1}½`;
-            
-            key.appendChild(label);
-            key.appendChild(idx);
-            
-            // Calcular posición: entre la tecla natural position y position+1
-            // Cada tecla natural mide 80px + 4px de margen = 84px
-            const keyWidth = 84; // 80px ancho + 4px margen
-            const sharpWidth = 50;
-            const offset = (position * keyWidth) + (keyWidth / 2) - (sharpWidth / 2);
-            
-            key.style.left = `${offset + 20}px`; // +20px por el padding del contenedor
-            
-            key.addEventListener('mousedown', () => this.handleKeyPress(sharpNote, key));
-            key.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.handleKeyPress(sharpNote, key);
+        // Esperar a que el layout se complete, luego posicionar los sostenidos
+        setTimeout(() => {
+            Object.keys(sharpPositions).forEach((sharpNote) => {
+                const position = sharpPositions[sharpNote];
+                const naturalKeys = document.querySelectorAll('.natural-key');
+                const leftKey = naturalKeys[position];
+                const rightKey = naturalKeys[position + 1];
+                
+                if (leftKey && rightKey) {
+                    const leftRect = leftKey.getBoundingClientRect();
+                    const rightRect = rightKey.getBoundingClientRect();
+                    const containerRect = this.xylophone.getBoundingClientRect();
+                    
+                    // Calcular el punto medio entre las dos teclas naturales
+                    const centerX = (leftRect.right + rightRect.left) / 2;
+                    const relativeX = centerX - containerRect.left;
+                    
+                    const key = document.createElement('div');
+                    key.className = 'sharp-key';
+                    key.dataset.note = sharpNote;
+                    
+                    const label = document.createElement('span');
+                    label.className = 'note-label';
+                    label.textContent = noteLabels[sharpNote];
+                    
+                    const idx = document.createElement('span');
+                    idx.className = 'note-index';
+                    idx.textContent = `${position + 1}½`;
+                    
+                    key.appendChild(label);
+                    key.appendChild(idx);
+                    
+                    // Posicionar la tecla sostenida centrada entre las naturales
+                    const sharpWidth = 50;
+                    key.style.left = `${relativeX - (sharpWidth / 2)}px`;
+                    
+                    key.addEventListener('mousedown', () => this.handleKeyPress(sharpNote, key));
+                    key.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.handleKeyPress(sharpNote, key);
+                    });
+                    
+                    this.xylophone.appendChild(key);
+                }
             });
-            
-            this.xylophone.appendChild(key);
-        });
+        }, 100);
     }
     
     setupEventListeners() {
@@ -157,7 +159,7 @@ class XylophoneApp {
         if (this.isFamiliarizing) {
             btn.textContent = '🎵 Modo Familiarización';
             btn.classList.add('active-mode');
-            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
+            document.getElementById('feedback').textContent = ' Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
@@ -206,7 +208,7 @@ class XylophoneApp {
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = ' Escuchando...';
+        feedback.textContent = '🎵 Escuchando...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
@@ -278,7 +280,7 @@ class XylophoneApp {
         }
         
         if (this.userMelody.length === 0) {
-            document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas';
+            document.getElementById('feedback').textContent = '️ Primero toca algunas notas';
             return;
         }
         
@@ -347,7 +349,7 @@ class XylophoneApp {
         let text = '💪 Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
         else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
-        else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
+        else if (score.percentage >= 60) text = ' Bien, sigue practicando';
         
         document.getElementById('feedbackText').textContent = text;
         
@@ -422,7 +424,7 @@ class XylophoneApp {
             });
             console.log('✅ Resultado guardado');
         } catch (error) {
-            console.error('❌ Error al guardar:', error);
+            console.error(' Error al guardar:', error);
         }
     }
 }
