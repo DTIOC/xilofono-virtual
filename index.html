@@ -30,12 +30,27 @@
         </section>
 
         <!-- 🎓 NUEVO: Control de velocidad y metrónomo visual para la práctica guiada -->
-        <section class="tempo-control" id="tempoSection" style="display:none; text-align:center; margin:20px 0; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
+                <section class="tempo-control" id="tempoSection" style="display:none; text-align:center; margin:20px 0; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
+            <!-- Control de velocidad -->
             <label for="bpmSlider" style="font-size:1.1rem; color:#FFD700;">
                 Velocidad: <strong id="bpmValue">69</strong> BPM
             </label><br>
             <input type="range" id="bpmSlider" min="40" max="140" value="69" style="width:80%; margin-top:10px; cursor:pointer;">
-            <div id="metronomoPulso" style="width:24px; height:24px; background:#666; border-radius:50%; margin:15px auto 0; transition:all 0.1s ease;"></div>
+            <div id="metronomoPulso" style="width:24px; height:24px; background:#666; border-radius:50%; margin:15px auto 10px; transition:all 0.1s ease;"></div>
+            
+            <!-- 🎚️ NUEVO: Control de volumen -->
+            <label for="volumeSlider" style="font-size:1rem; color:#00d9a5;">
+                🔊 Volumen: <strong id="volumeValue">70</strong>%
+            </label><br>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" style="width:80%; margin-top:8px; cursor:pointer; accent-color:#00d9a5;">
+            
+            <!-- 🔔 NUEVO: Toggle del metrónomo -->
+            <div style="margin-top:15px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <label for="metroToggle" style="color:#FF4444; font-size:1rem; cursor:pointer;">
+                    🔔 Metrónomo:
+                </label>
+                <input type="checkbox" id="metroToggle" checked style="width:20px; height:20px; cursor:pointer; accent-color:#FF4444;">
+            </div>
         </section>
 
         <section class="info-panel">
