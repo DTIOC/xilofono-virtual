@@ -21,11 +21,11 @@ class XylophoneApp {
         this.metronomoSynth = null;
         
         // 🎚️ Variables de control de audio
-        this.volumenNotas = 0.7; // 70% por defecto
+        this.volumenNotas = 0.7;
         this.metronomoActivo = true;
-        this.masterVolume = null; // Se inicializa en initAudio
+        this.masterVolume = null;
 
-        // 🎵 Melodía correcta del metalófono (166 notas, tiempo ajustado a 0.0s)
+        // 🎵 Melodía correcta del metalófono (166 notas)
         this.melodiaConcierto = [
             {"nota":"C#5","duracion":"8n","tiempo":0.0,"orden":1},
             {"nota":"E5","duracion":"4n","tiempo":0.29,"orden":2},
@@ -209,7 +209,7 @@ class XylophoneApp {
         if (!this.sampler) {
             await Tone.start();
             
-            // 🎚️ 1. PRIMERO: Crear el nodo maestro de volumen (inicia en -3dB para evitar distorsión)
+            // 🎚️ 1. PRIMERO: Crear el nodo maestro de volumen
             this.masterVolume = new Tone.Volume(-3).toDestination();
             
             // 2. Crear el sampler y conectarlo al nodo maestro
@@ -223,7 +223,7 @@ class XylophoneApp {
                     "G#5": "Gs5.wav", "A5": "A5.wav"
                 },
                 baseUrl: "./samples/xilofono/",
-                volume: 0, // El volumen base lo controla el masterVolume
+                volume: 0,
                 onload: () => {
                     console.log("✅ Sonidos reales de xilófono cargados correctamente");
                     this.isAudioReady = true;
@@ -231,9 +231,9 @@ class XylophoneApp {
                 onerror: (error) => {
                     console.error("❌ Error al cargar los archivos de audio:", error);
                 }
-            }).connect(this.masterVolume); // 🎚️ Conectado al nodo maestro
+            }).connect(this.masterVolume);
             
-            // 3. Crear la reverberación y conectarla también al nodo maestro
+            // 3. Crear la reverberación y conectarla al nodo maestro
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).connect(this.masterVolume);
             this.sampler.connect(reverb);
 
@@ -241,9 +241,9 @@ class XylophoneApp {
             this.metronomoSynth = new Tone.MembraneSynth({
                 pitchDecay: 0.008, octaves: 2,
                 envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
-            }).connect(this.masterVolume); // 🎚️ Conectado al nodo maestro
+            }).connect(this.masterVolume);
             
-            this.metronomoSynth.volume.value = -10; // Volumen suave para el clic
+            this.metronomoSynth.volume.value = -10;
         }
         
         if (!this.isAudioReady) {
@@ -341,10 +341,8 @@ class XylophoneApp {
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
         
-        // 🎓 Listener para el Modo Práctica Guiada
         document.getElementById('btnGuideMode').addEventListener('click', () => this.toggleModoGuiado());
         
-        // 🎓 Listener para el control de velocidad
         document.getElementById('bpmSlider').addEventListener('input', (e) => {
             document.getElementById('bpmValue').textContent = e.target.value;
             if (this.modoGuiaActivo) {
@@ -352,25 +350,21 @@ class XylophoneApp {
             }
         });
 
-        // 🎚️ Listener para el volumen (Controla todo el audio maestro)
         document.getElementById('volumeSlider').addEventListener('input', (e) => {
             const porcentaje = parseInt(e.target.value);
             document.getElementById('volumeValue').textContent = porcentaje;
             this.volumenNotas = porcentaje / 100;
             
             if (this.masterVolume) {
-                // Convertir 0-100% a decibeles (0% = -40dB, 100% = 0dB)
                 const db = porcentaje === 0 ? -40 : (20 * Math.log10(this.volumenNotas));
                 this.masterVolume.volume.rampTo(db, 0.1);
             }
         });
 
-        // 🔔 Listener para el metrónomo
         document.getElementById('metroToggle').addEventListener('change', (e) => {
             this.metronomoActivo = e.target.checked;
         });
 
-        // 🔁 Listener para reiniciar el ejercicio
         document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise());
     }
 
@@ -659,7 +653,11 @@ class XylophoneApp {
         Tone.Transport.cancel();
         this.clearKeyboardHighlights();
 
-        // Metrónomo (clic en cada negra)
+        // 🎯 AJUSTE FINO DEL METRÓNOMO (en segundos)
+        // 2 octavos de tresillo a 69 BPM = aprox 0.58 segundos.
+        const ajusteMetrónomo = -0.58; 
+
+        // Metrónomo con ajuste de fase aplicado al final con .start(ajusteMetrónomo)
         this.metroLoop = new Tone.Loop((time) => {
             if (this.metronomoActivo) {
                 this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
@@ -671,7 +669,6 @@ class XylophoneApp {
                     }
                 }, time);
             } else {
-                // Si está desactivado, solo hace el pulso visual suave (sin sonido)
                 Tone.Draw.schedule(() => {
                     const pulso = document.getElementById('metronomoPulso');
                     if (pulso) {
@@ -680,11 +677,10 @@ class XylophoneApp {
                     }
                 }, time);
             }
-        }, "4n");
+        }, "4n").start(ajusteMetrónomo); // <--- ¡AQUÍ SE APLICA EL DESPLAZAMIENTO!
 
         // Melodía guiada
         this.guiaPart = new Tone.Part((time, value) => {
-            // Usamos el volumen controlado por el slider
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             
             Tone.Draw.schedule(() => {
@@ -693,7 +689,6 @@ class XylophoneApp {
         }, this.melodiaConcierto.map(n => [n.tiempo, n]));
 
         this.guiaPart.start(0);
-        this.metroLoop.start(0);
         Tone.Transport.start();
 
         // Detener automáticamente al final
