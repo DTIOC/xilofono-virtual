@@ -202,37 +202,35 @@ class XylophoneApp {
         this.generateNewMelody();
     }
     
-    // 🎯 CORRECCIÓN CLAVE: Espera real a que los sonidos carguen
     async initAudio() {
         if (!this.sampler) {
             await Tone.start();
+            console.log("🎵 Contexto de audio iniciado");
+            
             this.masterVolume = new Tone.Volume(-3).toDestination();
             
-            // Creamos una Promesa que se resuelve SOLO cuando los sonidos terminan de cargar
-            const loadPromise = new Promise((resolve) => {
-                this.sampler = new Tone.Sampler({
-                    urls: {
-                        "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
-                        "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
-                        "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
-                        "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
-                        "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
-                        "G#5": "Gs5.wav", "A5": "A5.wav"
-                    },
-                    baseUrl: "./samples/xilofono/",
-                    volume: 0,
-                    onload: () => {
-                        console.log("✅ Sonidos reales de xilófono cargados y listos");
-                        this.isAudioReady = true;
-                        resolve(); // ¡Aquí avisamos que ya puede tocar!
-                    },
-                    onerror: (error) => {
-                        console.error("❌ Error al cargar los archivos de audio:", error);
-                        resolve(); // Resolvemos para no bloquear la app indefinidamente
-                    }
-                }).connect(this.masterVolume);
-            });
-
+            this.sampler = new Tone.Sampler({
+                urls: {
+                    "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
+                    "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
+                    "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
+                    "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
+                    "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
+                    "G#5": "Gs5.wav", "A5": "A5.wav"
+                },
+                baseUrl: "./samples/xilofono/",
+                volume: 0,
+                onload: () => {
+                    console.log("✅ Sonidos cargados correctamente");
+                    this.isAudioReady = true;
+                },
+                onerror: (err) => {
+                    console.error("❌ ERROR CRÍTICO: No se pudieron cargar los sonidos:", err);
+                    alert("⚠️ ERROR DE AUDIO: No se encontraron los archivos .wav en la carpeta 'samples/xilofono/'. Revisa que estén subidos a GitHub.");
+                    this.isAudioReady = true; // Permitir que la app continúe
+                }
+            }).connect(this.masterVolume);
+            
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).connect(this.masterVolume);
             this.sampler.connect(reverb);
 
@@ -242,9 +240,6 @@ class XylophoneApp {
             }).connect(this.masterVolume);
             
             this.metronomoSynth.volume.value = -10;
-
-            // Esperamos aquí hasta que la promesa se resuelva (sonidos cargados)
-            await loadPromise;
         }
     }
     
@@ -279,13 +274,8 @@ class XylophoneApp {
             
             key.appendChild(label);
             key.appendChild(idx);
-            
             key.addEventListener('mousedown', () => this.handleKeyPress(note, key));
-            key.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.handleKeyPress(note, key);
-            });
-            
+            key.addEventListener('touchstart', (e) => { e.preventDefault(); this.handleKeyPress(note, key); });
             this.xylophone.appendChild(key);
         });
         
@@ -318,13 +308,8 @@ class XylophoneApp {
                     key.appendChild(label);
                     key.appendChild(idx);
                     key.style.left = `${relativeX - 25}px`;
-                    
                     key.addEventListener('mousedown', () => this.handleKeyPress(sharpNote, key));
-                    key.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        this.handleKeyPress(sharpNote, key);
-                    });
-                    
+                    key.addEventListener('touchstart', (e) => { e.preventDefault(); this.handleKeyPress(sharpNote, key); });
                     this.xylophone.appendChild(key);
                 }
             });
@@ -337,21 +322,18 @@ class XylophoneApp {
         document.getElementById('btnGenerate').addEventListener('click', () => this.generateNewMelody());
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
-        
         document.getElementById('btnGuideMode').addEventListener('click', () => this.toggleModoGuiado());
+        document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise()); // ✅ Listener del botón Reiniciar
         
         document.getElementById('bpmSlider').addEventListener('input', (e) => {
             document.getElementById('bpmValue').textContent = e.target.value;
-            if (this.modoGuiaActivo) {
-                Tone.Transport.bpm.value = parseInt(e.target.value);
-            }
+            if (this.modoGuiaActivo) Tone.Transport.bpm.value = parseInt(e.target.value);
         });
 
         document.getElementById('volumeSlider').addEventListener('input', (e) => {
             const porcentaje = parseInt(e.target.value);
             document.getElementById('volumeValue').textContent = porcentaje;
             this.volumenNotas = porcentaje / 100;
-            
             if (this.masterVolume) {
                 const db = porcentaje === 0 ? -40 : (20 * Math.log10(this.volumenNotas));
                 this.masterVolume.volume.rampTo(db, 0.1);
@@ -361,8 +343,6 @@ class XylophoneApp {
         document.getElementById('metroToggle').addEventListener('change', (e) => {
             this.metronomoActivo = e.target.checked;
         });
-
-        document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise());
     }
 
     toggleMode() {
@@ -372,11 +352,11 @@ class XylophoneApp {
         if (this.isFamiliarizing) {
             btn.textContent = '🎵 Modo Familiarización';
             btn.classList.add('active-mode');
-            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
+            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite.';
         }
         this.clearUserMelody();
     }
@@ -386,27 +366,15 @@ class XylophoneApp {
         this.userMelody = [];
         this.clearKeyboardHighlights();
         document.getElementById('scoreDisplay').style.display = 'none';
-        
-        let melodyLength = 1;
-        this.isSimultaneous = false;
-
-        if (this.currentLevel === 1) melodyLength = 1;
-        else if (this.currentLevel === 2) melodyLength = 2;
-        else if (this.currentLevel === 3) melodyLength = Math.floor(Math.random() * 3) + 3;
-        else if (this.currentLevel === 4) {
-            melodyLength = Math.floor(Math.random() * 2) + 2;
-            this.isSimultaneous = true;
-        }
+        let melodyLength = this.currentLevel === 1 ? 1 : (this.currentLevel === 2 ? 2 : (this.currentLevel === 3 ? Math.floor(Math.random() * 3) + 3 : Math.floor(Math.random() * 2) + 2));
+        this.isSimultaneous = this.currentLevel === 4;
 
         this.currentMelody = [];
         for (let i = 0; i < melodyLength; i++) {
-            const randomNote = this.scaleNotes[Math.floor(Math.random() * this.scaleNotes.length)];
-            this.currentMelody.push(randomNote);
+            this.currentMelody.push(this.scaleNotes[Math.floor(Math.random() * this.scaleNotes.length)]);
         }
-
         this.updateUI(melodyLength);
-        const modeText = this.isFamiliarizing ? '(Práctica)' : '(Evaluación)';
-        document.getElementById('feedback').textContent = `Presiona "Escuchar" para comenzar ${modeText}`;
+        document.getElementById('feedback').textContent = `Presiona "Escuchar" para comenzar ${this.isFamiliarizing ? '(Práctica)' : '(Evaluación)'}`;
     }
 
     updateUI(length = 0) {
@@ -420,29 +388,20 @@ class XylophoneApp {
         const feedback = document.getElementById('feedback');
         feedback.textContent = '🎧 Escuchando...';
         feedback.style.color = '#00d9a5';
-        
         const now = Tone.now();
+        
         if (this.isSimultaneous) {
-            this.currentMelody.forEach((note) => {
-                this.sampler.triggerAttackRelease(note, '2n', now);
-            });
-            setTimeout(() => {
-                feedback.textContent = '✅ Ahora toca las notas simultáneamente (acorde/intervalo)';
-                feedback.style.color = '#fff';
-            }, 1500);
+            this.currentMelody.forEach((note) => this.sampler.triggerAttackRelease(note, '2n', now));
+            setTimeout(() => { feedback.textContent = '✅ Ahora toca las notas simultáneamente'; feedback.style.color = '#fff'; }, 1500);
         } else {
-            this.currentMelody.forEach((note, index) => {
-                this.sampler.triggerAttackRelease(note, '8n', now + (index * 0.6));
-            });
-            setTimeout(() => {
-                feedback.textContent = '✅ Ahora repite la melodía en el xilófono';
-                feedback.style.color = '#fff';
-            }, this.currentMelody.length * 600 + 500);
+            this.currentMelody.forEach((note, index) => this.sampler.triggerAttackRelease(note, '8n', now + (index * 0.6)));
+            setTimeout(() => { feedback.textContent = '✅ Ahora repite la melodía'; feedback.style.color = '#fff'; }, this.currentMelody.length * 600 + 500);
         }
     }
     
     async handleKeyPress(note, keyElement) {
         await this.initAudio();
+        console.log(`🎵 Tocando nota: ${note}`);
         this.sampler.triggerAttackRelease(note, '8n');
         keyElement.classList.add('active');
         setTimeout(() => keyElement.classList.remove('active'), 200);
@@ -451,9 +410,7 @@ class XylophoneApp {
     }
     
     updateFeedback() {
-        const feedback = document.getElementById('feedback');
-        const notesPlayed = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
-        feedback.textContent = `Notas tocadas: ${notesPlayed}`;
+        document.getElementById('feedback').textContent = `Notas tocadas: ${this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ')}`;
     }
     
     convertNoteToSpanish(noteCode) {
@@ -472,9 +429,7 @@ class XylophoneApp {
     }
     
     clearKeyboardHighlights() {
-        document.querySelectorAll('.natural-key, .sharp-key').forEach(key => {
-            key.classList.remove('correct', 'incorrect', 'active-guide');
-        });
+        document.querySelectorAll('.natural-key, .sharp-key').forEach(key => key.classList.remove('correct', 'incorrect', 'active-guide'));
         document.querySelectorAll('.order-number').forEach(el => el.remove());
     }
     
@@ -484,11 +439,9 @@ class XylophoneApp {
         const group = document.getElementById('studentGroup').value.trim();
         
         if (!email || !name || !group) {
-            alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo).');
-            document.getElementById('studentEmail').focus();
+            alert('⚠️ Por favor, completa todos los campos.');
             return;
         }
-        
         if (this.userMelody.length === 0) {
             document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas';
             return;
@@ -502,7 +455,7 @@ class XylophoneApp {
             this.handleProgression(score);
             this.saveToGoogleSheets(score);
         } else {
-            document.getElementById('feedback').innerHTML += '<br><small>(Modo práctica: no se guardó el resultado)</small>';
+            document.getElementById('feedback').innerHTML += '<br><small>(Modo práctica: no se guardó)</small>';
         }
     }
 
@@ -512,9 +465,7 @@ class XylophoneApp {
             if (this.successStreak >= 2 && this.currentLevel < 4) {
                 this.currentLevel++;
                 this.successStreak = 0;
-                alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
-            } else if (this.currentLevel === 4 && this.successStreak >= 2) {
-                alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento.');
+                alert(`🎉 ¡Felicidades! Subes al Nivel ${this.currentLevel}.`);
             }
         } else {
             this.successStreak = 0;
@@ -541,30 +492,17 @@ class XylophoneApp {
             }
         }
         const maxNotes = Math.max(this.currentMelody.length, this.userMelody.length);
-        const percentage = maxNotes === 0 ? 0 : Math.round((correctNotes / maxNotes) * 100);
-        return { percentage, correctNotes, totalNotes: this.currentMelody.length, userNotes: this.userMelody.length };
+        return { percentage: maxNotes === 0 ? 0 : Math.round((correctNotes / maxNotes) * 100), correctNotes, totalNotes: this.currentMelody.length, userNotes: this.userMelody.length };
     }
     
     showResults(score) {
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        scoreDisplay.style.display = 'block';
+        document.getElementById('scoreDisplay').style.display = 'block';
         document.getElementById('scoreValue').textContent = score.percentage;
-        
-        let text = '💪 Sigue practicando, ¡tú puedes!';
-        if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
-        else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
-        
+        let text = '💪 Sigue practicando';
+        if (score.percentage === 100) text = '🌟 ¡Perfecto!';
+        else if (score.percentage >= 80) text = '👏 ¡Muy bien!';
         document.getElementById('feedbackText').textContent = text;
-        
-        const userNotesSpanish = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
-        const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? ' + ' : ' - ');
-        
-        document.getElementById('feedback').innerHTML = `
-            Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>
-            <small>Tocaste: ${userNotesSpanish}</small><br>
-            <small>Era: ${correctNotesSpanish}</small>
-        `;
+        document.getElementById('feedback').innerHTML = `Notas correctas: ${score.correctNotes}/${score.totalNotes}<br><small>Tocaste: ${this.userMelody.map(n => this.convertNoteToSpanish(n)).join(' - ')}</small><br><small>Era: ${this.currentMelody.map(n => this.convertNoteToSpanish(n)).join(this.isSimultaneous ? ' + ' : ' - ')}</small>`;
     }
     
     highlightKeys() {
@@ -572,72 +510,51 @@ class XylophoneApp {
         if (this.isSimultaneous) {
             this.userMelody.forEach(note => {
                 const keyElement = document.querySelector(`[data-note="${note}"]`);
-                if (keyElement && this.currentMelody.includes(note)) keyElement.classList.add('correct');
-                else if (keyElement) keyElement.classList.add('incorrect');
-            });
-            this.currentMelody.forEach(note => {
-                if (!this.userMelody.includes(note)) {
-                    const keyElement = document.querySelector(`[data-note="${note}"]`);
-                    if (keyElement) keyElement.classList.add('incorrect');
-                }
+                if (keyElement) keyElement.classList.add(this.currentMelody.includes(note) ? 'correct' : 'incorrect');
             });
         } else {
             this.userMelody.forEach((note, index) => {
                 const keyElement = document.querySelector(`[data-note="${note}"]`);
-                if (keyElement) {
-                    if (this.currentMelody[index] === note) keyElement.classList.add('correct');
-                    else keyElement.classList.add('incorrect');
-                }
+                if (keyElement) keyElement.classList.add(this.currentMelody[index] === note ? 'correct' : 'incorrect');
             });
         }
     }
     
     async saveToGoogleSheets(score) {
-        const email = document.getElementById('studentEmail').value.trim();
-        const name = document.getElementById('studentName').value.trim();
-        const group = document.getElementById('studentGroup').value.trim();
-        
         const formData = new FormData();
         formData.append('timestamp', new Date().toISOString());
-        formData.append('email', email || 'No especificado');
-        formData.append('name', name || 'No especificado');
-        formData.append('group', group || 'No especificado');
+        formData.append('email', document.getElementById('studentEmail').value.trim() || 'No especificado');
+        formData.append('name', document.getElementById('studentName').value.trim() || 'No especificado');
+        formData.append('group', document.getElementById('studentGroup').value.trim() || 'No especificado');
         formData.append('teacher', 'Óscar');
         formData.append('nivel', this.currentLevel);
         formData.append('modo', 'Evaluación');
-        formData.append('tipoEjercicio', this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico');
-        formData.append('melodyLength', this.currentMelody.length);
         formData.append('score', score.percentage);
         formData.append('correctNotes', score.correctNotes);
         formData.append('totalNotes', score.totalNotes);
-        formData.append('userMelody', this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
-        formData.append('correctMelody', this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'));
-        
         try {
             await fetch(this.webhookURL, { method: 'POST', body: formData });
-            console.log('✅ Resultado guardado en Google Sheets');
+            console.log('✅ Guardado en Google Sheets');
         } catch (error) {
             console.error('❌ Error al guardar:', error);
         }
     }
 
     toggleModoGuiado() {
-        if (this.modoGuiaActivo) {
-            this.detenerSecuenciaGuiada();
-        } else {
-            this.iniciarSecuenciaGuiada();
-        }
+        if (this.modoGuiaActivo) this.detenerSecuenciaGuiada();
+        else this.iniciarSecuenciaGuiada();
     }
 
     async iniciarSecuenciaGuiada() {
-        await this.initAudio(); // Ahora SÍ espera a que los sonidos carguen
+        await this.initAudio();
+        console.log("🎵 Iniciando secuencia guiada...");
         this.modoGuiaActivo = true;
         
         const btn = document.getElementById('btnGuideMode');
         btn.textContent = '⏹️ Detener Práctica';
         btn.classList.add('active-mode');
         document.getElementById('tempoSection').style.display = 'block';
-        document.getElementById('feedback').textContent = '🎵 Observa las teclas iluminadas y sigue el pulso del metrónomo.';
+        document.getElementById('feedback').textContent = '🎵 Observa las teclas iluminadas y sigue el pulso.';
         document.getElementById('feedback').style.color = '#FFD700';
 
         const bpm = parseInt(document.getElementById('bpmSlider').value);
@@ -670,11 +587,9 @@ class XylophoneApp {
         }, "4n").start(ajusteMetrónomo);
 
         this.guiaPart = new Tone.Part((time, value) => {
+            console.log(`🎵 Reproduciendo: ${value.nota} en tiempo ${time}`);
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
-            
-            Tone.Draw.schedule(() => {
-                this.resaltarTecla(value.nota, value.orden);
-            }, time);
+            Tone.Draw.schedule(() => this.resaltarTecla(value.nota, value.orden), time);
         }, this.melodiaConcierto.map(n => [n.tiempo, n]));
 
         this.guiaPart.start(0);
@@ -683,7 +598,7 @@ class XylophoneApp {
         const duracionTotal = this.melodiaConcierto[this.melodiaConcierto.length - 1].tiempo + 3;
         Tone.Transport.schedule(() => {
             this.detenerSecuenciaGuiada();
-            document.getElementById('feedback').textContent = '✅ ¡Melodía terminada! Puedes ajustar la velocidad y volver a intentar.';
+            document.getElementById('feedback').textContent = '✅ ¡Melodía terminada!';
             document.getElementById('feedback').style.color = '#00d9a5';
         }, duracionTotal);
     }
@@ -692,10 +607,8 @@ class XylophoneApp {
         this.modoGuiaActivo = false;
         Tone.Transport.stop();
         Tone.Transport.cancel();
-        
         if (this.guiaPart) { this.guiaPart.dispose(); this.guiaPart = null; }
         if (this.metroLoop) { this.metroLoop.dispose(); this.metroLoop = null; }
-        
         this.clearKeyboardHighlights();
         
         const btn = document.getElementById('btnGuideMode');
@@ -709,11 +622,9 @@ class XylophoneApp {
     resaltarTecla(nota, orden) {
         document.querySelectorAll('.active-guide').forEach(el => el.classList.remove('active-guide'));
         document.querySelectorAll('.order-number').forEach(el => el.remove());
-
         const tecla = document.querySelector(`[data-note="${nota}"]`);
         if (tecla) {
             tecla.classList.add('active-guide');
-            
             const numEl = document.createElement('div');
             numEl.className = 'order-number';
             numEl.textContent = orden;
@@ -722,19 +633,14 @@ class XylophoneApp {
     }
 
     restartExercise() {
+        console.log("🔁 Reiniciando ejercicio...");
         this.detenerSecuenciaGuiada();
         this.userMelody = [];
         this.clearKeyboardHighlights();
         document.getElementById('scoreDisplay').style.display = 'none';
-        
         const feedback = document.getElementById('feedback');
         feedback.style.color = '#fff';
-        if (this.isFamiliarizing) {
-            feedback.textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
-        } else {
-            feedback.textContent = '📝 Presiona "Escuchar" para volver a intentar la melodía.';
-        }
-        console.log('🔁 Ejercicio reiniciado. Misma melodía, listo para reintentar.');
+        feedback.textContent = this.isFamiliarizing ? '🎵 Modo Práctica: Toca libremente.' : '📝 Presiona "Escuchar" para volver a intentar.';
     }
 }
 
