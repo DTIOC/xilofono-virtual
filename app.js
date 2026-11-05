@@ -543,66 +543,8 @@ class XylophoneApp {
         else this.iniciarSecuenciaGuiada();
     }
 
-    async iniciarSecuenciaGuiada() {
-        await this.initAudio();
-        console.log("🎵 Iniciando secuencia guiada...");
-        this.modoGuiaActivo = true;
-        
-        const btn = document.getElementById('btnGuideMode');
-        btn.textContent = '⏹️ Detener Práctica';
-        btn.classList.add('active-mode');
-        document.getElementById('tempoSection').style.display = 'block';
-        document.getElementById('feedback').textContent = '🎵 Observa las teclas iluminadas y sigue el pulso.';
-        document.getElementById('feedback').style.color = '#FFD700';
+        async iniciarSecuenciaGuiada() {
 
-        const bpm = parseInt(document.getElementById('bpmSlider').value);
-        Tone.Transport.bpm.value = bpm;
-        
-        // 🛠️ FIX: Detener, cancelar y REWIND (rebobinar) el reloj de Tone.js a 0
-        Tone.Transport.stop();
-        Tone.Transport.cancel();
-        Tone.Transport.seconds = 0; // <--- ¡ESTA LÍNEA SOLUCIONA EL ERROR!
-        
-        this.clearKeyboardHighlights();
-
-        const ajusteMetrónomo = 0; // Ajustado a 0 para evitar errores de tiempo negativo al reiniciar
-
-        this.metroLoop = new Tone.Loop((time) => {
-            if (this.metronomoActivo) {
-                this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
-                Tone.Draw.schedule(() => {
-                    const pulso = document.getElementById('metronomoPulso');
-                    if (pulso) {
-                        pulso.classList.add('pulso-activo');
-                        setTimeout(() => pulso.classList.remove('pulso-activo'), 150);
-                    }
-                }, time);
-            } else {
-                Tone.Draw.schedule(() => {
-                    const pulso = document.getElementById('metronomoPulso');
-                    if (pulso) {
-                        pulso.style.background = '#444';
-                        setTimeout(() => pulso.style.background = '#666', 150);
-                    }
-                }, time);
-            }
-        }, "4n").start(ajusteMetrónomo);
-
-        this.guiaPart = new Tone.Part((time, value) => {
-            this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
-            Tone.Draw.schedule(() => this.resaltarTecla(value.nota, value.orden), time);
-        }, this.melodiaConcierto.map(n => [n.tiempo, n]));
-
-        this.guiaPart.start(0);
-        Tone.Transport.start();
-
-        const duracionTotal = this.melodiaConcierto[this.melodiaConcierto.length - 1].tiempo + 3;
-        Tone.Transport.schedule(() => {
-            this.detenerSecuenciaGuiada();
-            document.getElementById('feedback').textContent = '✅ ¡Melodía terminada!';
-            document.getElementById('feedback').style.color = '#00d9a5';
-        }, duracionTotal);
-    }
 
     detenerSecuenciaGuiada() {
         this.modoGuiaActivo = false;
