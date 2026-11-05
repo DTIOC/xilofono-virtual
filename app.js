@@ -629,20 +629,32 @@ class XylophoneApp {
 
         // 1. Metrónomo (clic en cada negra)
         this.metroLoop = new Tone.Loop((time) => {
-            this.metronomoSynth.triggerAttackRelease("C6", "32n", time);
-            Tone.Draw.schedule(() => {
-                const pulso = document.getElementById('metronomoPulso');
-                if (pulso) {
-                    pulso.classList.add('pulso-activo');
-                    setTimeout(() => pulso.classList.remove('pulso-activo'), 150);
-                }
-            }, time);
-        }, "4n");
+    // Solo suena el clic si el metrónomo está activado
+    if (this.metronomoActivo) {
+        this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
+        Tone.Draw.schedule(() => {
+            const pulso = document.getElementById('metronomoPulso');
+            if (pulso) {
+                pulso.classList.add('pulso-activo');
+                setTimeout(() => pulso.classList.remove('pulso-activo'), 150);
+            }
+        }, time);
+    } else {
+        // Si está desactivado, solo hace el pulso visual suave (sin sonido)
+        Tone.Draw.schedule(() => {
+            const pulso = document.getElementById('metronomoPulso');
+            if (pulso) {
+                pulso.style.background = '#444';
+                setTimeout(() => pulso.style.background = '#666', 150);
+            }
+        }, time);
+    }
+}, "4n");
 
         // 2. Melodía guiada
         this.guiaPart = new Tone.Part((time, value) => {
             // Usamos el mismo sampler para que suene idéntico al resto de la app
-            this.sampler.triggerAttackRelease(value.nota, value.duracion, time);
+           this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             
             // Sincronización visual perfecta con el audio
             Tone.Draw.schedule(() => {
