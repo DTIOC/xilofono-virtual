@@ -209,27 +209,31 @@ class XylophoneApp {
             
             this.masterVolume = new Tone.Volume(-3).toDestination();
             
-            this.sampler = new Tone.Sampler({
-                urls: {
-                    "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
-                    "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
-                    "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
-                    "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
-                    "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
-                    "G#5": "Gs5.wav", "A5": "A5.wav"
-                },
-                baseUrl: "./samples/xilofono/",
-                volume: 0,
-                onload: () => {
-                    console.log("✅ Sonidos cargados correctamente");
-                    this.isAudioReady = true;
-                },
-                onerror: (err) => {
-                    console.error("❌ ERROR CRÍTICO: No se pudieron cargar los sonidos:", err);
-                    this.isAudioReady = true;
-                }
-            }).connect(this.masterVolume);
-            
+            // 🛡️ PROMESA: Obliga al código a esperar a que los sonidos carguen
+            const loadPromise = new Promise((resolve) => {
+                this.sampler = new Tone.Sampler({
+                    urls: {
+                        "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
+                        "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
+                        "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
+                        "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
+                        "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
+                        "G#5": "Gs5.wav", "A5": "A5.wav"
+                    },
+                    baseUrl: "./samples/xilofono/",
+                    volume: 0,
+                    onload: () => {
+                        console.log("✅ Sonidos cargados y listos para tocar");
+                        this.isAudioReady = true;
+                        resolve();
+                    },
+                    onerror: (err) => {
+                        console.error("❌ ERROR: No se cargaron los sonidos:", err);
+                        resolve(); 
+                    }
+                }).connect(this.masterVolume);
+            });
+
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).connect(this.masterVolume);
             this.sampler.connect(reverb);
 
@@ -239,6 +243,9 @@ class XylophoneApp {
             }).connect(this.masterVolume);
             
             this.metronomoSynth.volume.value = -10;
+
+            // ⏳ Esperamos aquí hasta que la promesa se resuelva (sonidos cargados)
+            await loadPromise;
         }
     }
     
@@ -543,7 +550,6 @@ class XylophoneApp {
         else this.iniciarSecuenciaGuiada();
     }
 
-    // ✅ AQUÍ ESTÁ EL MÉTODO COMPLETO Y CORREGIDO
     async iniciarSecuenciaGuiada() {
         await this.initAudio();
         console.log("🎵 Iniciando secuencia guiada...");
