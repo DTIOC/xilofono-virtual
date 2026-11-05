@@ -14,18 +14,15 @@ class XylophoneApp {
         this.isFamiliarizing = true;
         this.isSimultaneous = false;
 
-        // 🎓 Variables para el Modo Práctica Guiada
         this.modoGuiaActivo = false;
         this.guiaPart = null;
         this.metroLoop = null;
         this.metronomoSynth = null;
         
-        // 🎚️ Variables de control de audio
         this.volumenNotas = 0.7;
         this.metronomoActivo = true;
         this.masterVolume = null;
 
-        // 🎵 Melodía correcta del metalófono (166 notas)
         this.melodiaConcierto = [
             {"nota":"C#5","duracion":"8n","tiempo":0.0,"orden":1},
             {"nota":"E5","duracion":"4n","tiempo":0.29,"orden":2},
@@ -205,49 +202,49 @@ class XylophoneApp {
         this.generateNewMelody();
     }
     
+    // 🎯 CORRECCIÓN CLAVE: Espera real a que los sonidos carguen
     async initAudio() {
         if (!this.sampler) {
             await Tone.start();
-            
-            // 🎚️ 1. PRIMERO: Crear el nodo maestro de volumen
             this.masterVolume = new Tone.Volume(-3).toDestination();
             
-            // 2. Crear el sampler y conectarlo al nodo maestro
-            this.sampler = new Tone.Sampler({
-                urls: {
-                    "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
-                    "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
-                    "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
-                    "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
-                    "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
-                    "G#5": "Gs5.wav", "A5": "A5.wav"
-                },
-                baseUrl: "./samples/xilofono/",
-                volume: 0,
-                onload: () => {
-                    console.log("✅ Sonidos reales de xilófono cargados correctamente");
-                    this.isAudioReady = true;
-                },
-                onerror: (error) => {
-                    console.error("❌ Error al cargar los archivos de audio:", error);
-                }
-            }).connect(this.masterVolume);
-            
-            // 3. Crear la reverberación y conectarla al nodo maestro
+            // Creamos una Promesa que se resuelve SOLO cuando los sonidos terminan de cargar
+            const loadPromise = new Promise((resolve) => {
+                this.sampler = new Tone.Sampler({
+                    urls: {
+                        "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
+                        "E4": "E4.wav", "F4": "F4.wav", "F#4": "Fs4.wav", "G4": "G4.wav",
+                        "G#4": "Gs4.wav", "A4": "A4.wav", "A#4": "As4.wav", "B4": "B4.wav",
+                        "C5": "C5.wav", "C#5": "Cs5.wav", "D5": "D5.wav", "D#5": "Ds5.wav",
+                        "E5": "E5.wav", "F5": "F5.wav", "F#5": "Fs5.wav", "G5": "G5.wav",
+                        "G#5": "Gs5.wav", "A5": "A5.wav"
+                    },
+                    baseUrl: "./samples/xilofono/",
+                    volume: 0,
+                    onload: () => {
+                        console.log("✅ Sonidos reales de xilófono cargados y listos");
+                        this.isAudioReady = true;
+                        resolve(); // ¡Aquí avisamos que ya puede tocar!
+                    },
+                    onerror: (error) => {
+                        console.error("❌ Error al cargar los archivos de audio:", error);
+                        resolve(); // Resolvemos para no bloquear la app indefinidamente
+                    }
+                }).connect(this.masterVolume);
+            });
+
             const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).connect(this.masterVolume);
             this.sampler.connect(reverb);
 
-            // 4. 🎓 Sintetizador para el clic del metrónomo, conectado al nodo maestro
             this.metronomoSynth = new Tone.MembraneSynth({
                 pitchDecay: 0.008, octaves: 2,
                 envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
             }).connect(this.masterVolume);
             
             this.metronomoSynth.volume.value = -10;
-        }
-        
-        if (!this.isAudioReady) {
-            return new Promise(resolve => setTimeout(resolve, 100));
+
+            // Esperamos aquí hasta que la promesa se resuelva (sonidos cargados)
+            await loadPromise;
         }
     }
     
@@ -624,10 +621,6 @@ class XylophoneApp {
         }
     }
 
-    // =========================================================================
-    // 🎓 MODO PRÁCTICA GUIADA
-    // =========================================================================
-    
     toggleModoGuiado() {
         if (this.modoGuiaActivo) {
             this.detenerSecuenciaGuiada();
@@ -637,7 +630,7 @@ class XylophoneApp {
     }
 
     async iniciarSecuenciaGuiada() {
-        await this.initAudio();
+        await this.initAudio(); // Ahora SÍ espera a que los sonidos carguen
         this.modoGuiaActivo = true;
         
         const btn = document.getElementById('btnGuideMode');
@@ -653,11 +646,8 @@ class XylophoneApp {
         Tone.Transport.cancel();
         this.clearKeyboardHighlights();
 
-        // 🎯 AJUSTE FINO DEL METRÓNOMO (en segundos)
-        // 2 octavos de tresillo a 69 BPM = aprox 0.58 segundos.
         const ajusteMetrónomo = -0.58; 
 
-        // Metrónomo con ajuste de fase aplicado al final con .start(ajusteMetrónomo)
         this.metroLoop = new Tone.Loop((time) => {
             if (this.metronomoActivo) {
                 this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
@@ -677,9 +667,8 @@ class XylophoneApp {
                     }
                 }, time);
             }
-        }, "4n").start(ajusteMetrónomo); // <--- ¡AQUÍ SE APLICA EL DESPLAZAMIENTO!
+        }, "4n").start(ajusteMetrónomo);
 
-        // Melodía guiada
         this.guiaPart = new Tone.Part((time, value) => {
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             
@@ -691,7 +680,6 @@ class XylophoneApp {
         this.guiaPart.start(0);
         Tone.Transport.start();
 
-        // Detener automáticamente al final
         const duracionTotal = this.melodiaConcierto[this.melodiaConcierto.length - 1].tiempo + 3;
         Tone.Transport.schedule(() => {
             this.detenerSecuenciaGuiada();
@@ -733,9 +721,6 @@ class XylophoneApp {
         }
     }
 
-    // =========================================================================
-    // 🔁 REINICIAR EJERCICIO
-    // =========================================================================
     restartExercise() {
         this.detenerSecuenciaGuiada();
         this.userMelody = [];
