@@ -14,181 +14,186 @@ class XylophoneApp {
         this.isFamiliarizing = true;
         this.isSimultaneous = false;
 
-        // 🎓 NUEVO: Variables para el Modo Práctica Guiada
+        // 🎓 Variables para el Modo Práctica Guiada
         this.modoGuiaActivo = false;
         this.guiaPart = null;
         this.metroLoop = null;
         this.metronomoSynth = null;
+        
+        // 🎚️ Variables de control de audio
+        this.volumenNotas = 0.7; // 70% por defecto
+        this.metronomoActivo = true;
+        this.masterVolume = null; // Se inicializa en initAudio
 
-        // 🎓 NUEVO: La melodía extraída de tu MIDI (91 notas, ~175s)
+        // 🎵 Melodía correcta del metalófono (166 notas, tiempo ajustado a 0.0s)
         this.melodiaConcierto = [
-    {"nota":"C#5","duracion":"8n","tiempo":0.0,"orden":1},
-    {"nota":"E5","duracion":"4n","tiempo":0.29,"orden":2},
-    {"nota":"C#5","duracion":"8n","tiempo":0.869,"orden":3},
-    {"nota":"E5","duracion":"8n","tiempo":1.159,"orden":4},
-    {"nota":"C#5","duracion":"4n","tiempo":1.449,"orden":5},
-    {"nota":"B4","duracion":"8n","tiempo":2.319,"orden":6},
-    {"nota":"A4","duracion":"8n","tiempo":2.608,"orden":7},
-    {"nota":"B4","duracion":"2n","tiempo":2.898,"orden":8},
-    {"nota":"B4","duracion":"8n","tiempo":3.768,"orden":9},
-    {"nota":"A4","duracion":"8n","tiempo":4.058,"orden":10},
-    {"nota":"C#5","duracion":"8n","tiempo":4.348,"orden":11},
-    {"nota":"B4","duracion":"2n","tiempo":4.637,"orden":12},
-    {"nota":"C#5","duracion":"8n","tiempo":6.666,"orden":13},
-    {"nota":"D5","duracion":"8n","tiempo":6.956,"orden":14},
-    {"nota":"E5","duracion":"4n","tiempo":7.246,"orden":15},
-    {"nota":"C#5","duracion":"8n","tiempo":7.826,"orden":16},
-    {"nota":"E5","duracion":"2n","tiempo":8.116,"orden":17},
-    {"nota":"B4","duracion":"8n","tiempo":9.275,"orden":18},
-    {"nota":"A4","duracion":"8n","tiempo":9.565,"orden":19},
-    {"nota":"B4","duracion":"4n","tiempo":9.855,"orden":20},
-    {"nota":"A4","duracion":"8n","tiempo":10.435,"orden":21},
-    {"nota":"B4","duracion":"8n","tiempo":10.724,"orden":22},
-    {"nota":"A4","duracion":"8n","tiempo":11.014,"orden":23},
-    {"nota":"C#5","duracion":"8n","tiempo":11.304,"orden":24},
-    {"nota":"B4","duracion":"2n","tiempo":11.594,"orden":25},
-    {"nota":"A4","duracion":"1n","tiempo":13.333,"orden":26},
-    {"nota":"B4","duracion":"1n","tiempo":16.811,"orden":27},
-    {"nota":"C#5","duracion":"8n","tiempo":19.71,"orden":28},
-    {"nota":"D5","duracion":"8n","tiempo":20.0,"orden":29},
-    {"nota":"E5","duracion":"4n","tiempo":20.29,"orden":30},
-    {"nota":"C#5","duracion":"8n","tiempo":20.869,"orden":31},
-    {"nota":"E5","duracion":"8n","tiempo":21.159,"orden":32},
-    {"nota":"D5","duracion":"8n","tiempo":21.449,"orden":33},
-    {"nota":"C#5","duracion":"8n","tiempo":21.739,"orden":34},
-    {"nota":"B4","duracion":"2n","tiempo":22.029,"orden":35},
-    {"nota":"B4","duracion":"2n","tiempo":22.898,"orden":36},
-    {"nota":"D5","duracion":"2n","tiempo":23.768,"orden":37},
-    {"nota":"C#5","duracion":"2n","tiempo":24.637,"orden":38},
-    {"nota":"B4","duracion":"2n","tiempo":25.507,"orden":39},
-    {"nota":"C#5","duracion":"2n","tiempo":27.246,"orden":40},
-    {"nota":"C#5","duracion":"4n","tiempo":28.116,"orden":41},
-    {"nota":"B4","duracion":"8n","tiempo":28.695,"orden":42},
-    {"nota":"A4","duracion":"2n","tiempo":28.985,"orden":43},
-    {"nota":"D5","duracion":"2n","tiempo":30.724,"orden":44},
-    {"nota":"D5","duracion":"4n","tiempo":31.594,"orden":45},
-    {"nota":"C#5","duracion":"8n","tiempo":32.174,"orden":46},
-    {"nota":"B4","duracion":"2n","tiempo":32.464,"orden":47},
-    {"nota":"C#5","duracion":"8n","tiempo":33.623,"orden":48},
-    {"nota":"D5","duracion":"8n","tiempo":33.913,"orden":49},
-    {"nota":"E5","duracion":"1n","tiempo":34.203,"orden":50},
-    {"nota":"F#5","duracion":"2n","tiempo":35.942,"orden":51},
-    {"nota":"B4","duracion":"8n","tiempo":37.101,"orden":52},
-    {"nota":"A4","duracion":"8n","tiempo":37.391,"orden":53},
-    {"nota":"B4","duracion":"2n","tiempo":37.681,"orden":54},
-    {"nota":"A4","duracion":"8n","tiempo":38.84,"orden":55},
-    {"nota":"B4","duracion":"8n","tiempo":39.13,"orden":56},
-    {"nota":"C#5","duracion":"8n","tiempo":39.42,"orden":57},
-    {"nota":"C#5","duracion":"8n","tiempo":40.0,"orden":58},
-    {"nota":"C#5","duracion":"4n","tiempo":40.579,"orden":59},
-    {"nota":"A4","duracion":"8n","tiempo":41.159,"orden":60},
-    {"nota":"B4","duracion":"8n","tiempo":41.449,"orden":61},
-    {"nota":"C#5","duracion":"1n","tiempo":41.739,"orden":62},
-    {"nota":"C#5","duracion":"8n","tiempo":43.768,"orden":63},
-    {"nota":"B4","duracion":"8n","tiempo":44.058,"orden":64},
-    {"nota":"A4","duracion":"8n","tiempo":44.348,"orden":65},
-    {"nota":"F#4","duracion":"4n","tiempo":44.637,"orden":66},
-    {"nota":"B4","duracion":"2n","tiempo":45.217,"orden":67},
-    {"nota":"A4","duracion":"8n","tiempo":46.666,"orden":68},
-    {"nota":"B4","duracion":"8n","tiempo":46.956,"orden":69},
-    {"nota":"C#5","duracion":"8n","tiempo":47.246,"orden":70},
-    {"nota":"B4","duracion":"8n","tiempo":47.536,"orden":71},
-    {"nota":"A4","duracion":"8n","tiempo":47.826,"orden":72},
-    {"nota":"E4","duracion":"4n","tiempo":48.116,"orden":73},
-    {"nota":"C#5","duracion":"1n","tiempo":48.695,"orden":74},
-    {"nota":"C#5","duracion":"8n","tiempo":50.724,"orden":75},
-    {"nota":"B4","duracion":"8n","tiempo":51.014,"orden":76},
-    {"nota":"A4","duracion":"8n","tiempo":51.304,"orden":77},
-    {"nota":"E5","duracion":"1n","tiempo":51.594,"orden":78},
-    {"nota":"C#5","duracion":"8n","tiempo":54.203,"orden":79},
-    {"nota":"B4","duracion":"8n","tiempo":54.492,"orden":80},
-    {"nota":"A4","duracion":"8n","tiempo":54.782,"orden":81},
-    {"nota":"A4","duracion":"8n","tiempo":55.072,"orden":82},
-    {"nota":"C#5","duracion":"8n","tiempo":55.652,"orden":83},
-    {"nota":"E5","duracion":"4n","tiempo":55.942,"orden":84},
-    {"nota":"C#5","duracion":"8n","tiempo":56.521,"orden":85},
-    {"nota":"E5","duracion":"8n","tiempo":56.811,"orden":86},
-    {"nota":"C#5","duracion":"4n","tiempo":57.101,"orden":87},
-    {"nota":"B4","duracion":"8n","tiempo":57.971,"orden":88},
-    {"nota":"A4","duracion":"8n","tiempo":58.261,"orden":89},
-    {"nota":"B4","duracion":"2n","tiempo":58.55,"orden":90},
-    {"nota":"B4","duracion":"8n","tiempo":59.42,"orden":91},
-    {"nota":"A4","duracion":"8n","tiempo":59.71,"orden":92},
-    {"nota":"C#5","duracion":"8n","tiempo":60.0,"orden":93},
-    {"nota":"B4","duracion":"2n","tiempo":60.29,"orden":94},
-    {"nota":"C#5","duracion":"8n","tiempo":62.319,"orden":95},
-    {"nota":"D5","duracion":"8n","tiempo":62.608,"orden":96},
-    {"nota":"E5","duracion":"4n","tiempo":62.898,"orden":97},
-    {"nota":"C#5","duracion":"8n","tiempo":63.478,"orden":98},
-    {"nota":"E5","duracion":"2n","tiempo":63.768,"orden":99},
-    {"nota":"B4","duracion":"8n","tiempo":64.927,"orden":100},
-    {"nota":"A4","duracion":"8n","tiempo":65.217,"orden":101},
-    {"nota":"B4","duracion":"4n","tiempo":65.507,"orden":102},
-    {"nota":"A4","duracion":"8n","tiempo":66.087,"orden":103},
-    {"nota":"B4","duracion":"8n","tiempo":66.377,"orden":104},
-    {"nota":"A4","duracion":"8n","tiempo":66.666,"orden":105},
-    {"nota":"C#5","duracion":"8n","tiempo":66.956,"orden":106},
-    {"nota":"B4","duracion":"2n","tiempo":67.246,"orden":107},
-    {"nota":"A4","duracion":"1n","tiempo":68.985,"orden":108},
-    {"nota":"B4","duracion":"1n","tiempo":72.464,"orden":109},
-    {"nota":"C#5","duracion":"8n","tiempo":75.362,"orden":110},
-    {"nota":"D5","duracion":"8n","tiempo":75.652,"orden":111},
-    {"nota":"E5","duracion":"4n","tiempo":75.942,"orden":112},
-    {"nota":"C#5","duracion":"8n","tiempo":76.521,"orden":113},
-    {"nota":"E5","duracion":"8n","tiempo":76.811,"orden":114},
-    {"nota":"D5","duracion":"8n","tiempo":77.101,"orden":115},
-    {"nota":"C#5","duracion":"8n","tiempo":77.391,"orden":116},
-    {"nota":"B4","duracion":"2n","tiempo":77.681,"orden":117},
-    {"nota":"B4","duracion":"2n","tiempo":78.55,"orden":118},
-    {"nota":"D5","duracion":"2n","tiempo":79.42,"orden":119},
-    {"nota":"C#5","duracion":"2n","tiempo":80.29,"orden":120},
-    {"nota":"B4","duracion":"2n","tiempo":81.159,"orden":121},
-    {"nota":"C#5","duracion":"2n","tiempo":82.898,"orden":122},
-    {"nota":"C#5","duracion":"4n","tiempo":83.768,"orden":123},
-    {"nota":"B4","duracion":"8n","tiempo":84.348,"orden":124},
-    {"nota":"A4","duracion":"2n","tiempo":84.637,"orden":125},
-    {"nota":"D5","duracion":"2n","tiempo":86.377,"orden":126},
-    {"nota":"D5","duracion":"4n","tiempo":87.246,"orden":127},
-    {"nota":"C#5","duracion":"8n","tiempo":87.826,"orden":128},
-    {"nota":"B4","duracion":"2n","tiempo":88.116,"orden":129},
-    {"nota":"C#5","duracion":"8n","tiempo":89.275,"orden":130},
-    {"nota":"D5","duracion":"8n","tiempo":89.565,"orden":131},
-    {"nota":"E5","duracion":"1n","tiempo":89.855,"orden":132},
-    {"nota":"F#5","duracion":"2n","tiempo":91.594,"orden":133},
-    {"nota":"B4","duracion":"8n","tiempo":92.753,"orden":134},
-    {"nota":"A4","duracion":"8n","tiempo":93.043,"orden":135},
-    {"nota":"B4","duracion":"2n","tiempo":93.333,"orden":136},
-    {"nota":"A4","duracion":"8n","tiempo":94.492,"orden":137},
-    {"nota":"B4","duracion":"8n","tiempo":94.782,"orden":138},
-    {"nota":"C#5","duracion":"8n","tiempo":95.072,"orden":139},
-    {"nota":"C#5","duracion":"8n","tiempo":95.652,"orden":140},
-    {"nota":"C#5","duracion":"4n","tiempo":96.232,"orden":141},
-    {"nota":"A4","duracion":"8n","tiempo":96.811,"orden":142},
-    {"nota":"B4","duracion":"8n","tiempo":97.101,"orden":143},
-    {"nota":"C#5","duracion":"1n","tiempo":97.391,"orden":144},
-    {"nota":"C#5","duracion":"8n","tiempo":99.42,"orden":145},
-    {"nota":"B4","duracion":"8n","tiempo":99.71,"orden":146},
-    {"nota":"A4","duracion":"8n","tiempo":100.0,"orden":147},
-    {"nota":"F#4","duracion":"4n","tiempo":100.29,"orden":148},
-    {"nota":"B4","duracion":"2n","tiempo":100.869,"orden":149},
-    {"nota":"A4","duracion":"8n","tiempo":102.319,"orden":150},
-    {"nota":"B4","duracion":"8n","tiempo":102.608,"orden":151},
-    {"nota":"C#5","duracion":"8n","tiempo":102.898,"orden":152},
-    {"nota":"B4","duracion":"8n","tiempo":103.188,"orden":153},
-    {"nota":"A4","duracion":"8n","tiempo":103.478,"orden":154},
-    {"nota":"E4","duracion":"4n","tiempo":103.768,"orden":155},
-    {"nota":"C#5","duracion":"1n","tiempo":104.348,"orden":156},
-    {"nota":"C#5","duracion":"8n","tiempo":106.377,"orden":157},
-    {"nota":"B4","duracion":"8n","tiempo":106.666,"orden":158},
-    {"nota":"A4","duracion":"8n","tiempo":106.956,"orden":159},
-    {"nota":"E5","duracion":"1n","tiempo":107.246,"orden":160},
-    {"nota":"C#5","duracion":"8n","tiempo":109.855,"orden":161},
-    {"nota":"B4","duracion":"8n","tiempo":110.145,"orden":162},
-    {"nota":"A4","duracion":"8n","tiempo":110.435,"orden":163},
-    {"nota":"A4","duracion":"8n","tiempo":110.724,"orden":164},
-    {"nota":"A4","duracion":"8n","tiempo":138.55,"orden":165},
-    {"nota":"A4","duracion":"1n","tiempo":161.157,"orden":166}
-];
+            {"nota":"C#5","duracion":"8n","tiempo":0.0,"orden":1},
+            {"nota":"E5","duracion":"4n","tiempo":0.29,"orden":2},
+            {"nota":"C#5","duracion":"8n","tiempo":0.869,"orden":3},
+            {"nota":"E5","duracion":"8n","tiempo":1.159,"orden":4},
+            {"nota":"C#5","duracion":"4n","tiempo":1.449,"orden":5},
+            {"nota":"B4","duracion":"8n","tiempo":2.319,"orden":6},
+            {"nota":"A4","duracion":"8n","tiempo":2.608,"orden":7},
+            {"nota":"B4","duracion":"2n","tiempo":2.898,"orden":8},
+            {"nota":"B4","duracion":"8n","tiempo":3.768,"orden":9},
+            {"nota":"A4","duracion":"8n","tiempo":4.058,"orden":10},
+            {"nota":"C#5","duracion":"8n","tiempo":4.348,"orden":11},
+            {"nota":"B4","duracion":"2n","tiempo":4.637,"orden":12},
+            {"nota":"C#5","duracion":"8n","tiempo":6.666,"orden":13},
+            {"nota":"D5","duracion":"8n","tiempo":6.956,"orden":14},
+            {"nota":"E5","duracion":"4n","tiempo":7.246,"orden":15},
+            {"nota":"C#5","duracion":"8n","tiempo":7.826,"orden":16},
+            {"nota":"E5","duracion":"2n","tiempo":8.116,"orden":17},
+            {"nota":"B4","duracion":"8n","tiempo":9.275,"orden":18},
+            {"nota":"A4","duracion":"8n","tiempo":9.565,"orden":19},
+            {"nota":"B4","duracion":"4n","tiempo":9.855,"orden":20},
+            {"nota":"A4","duracion":"8n","tiempo":10.435,"orden":21},
+            {"nota":"B4","duracion":"8n","tiempo":10.724,"orden":22},
+            {"nota":"A4","duracion":"8n","tiempo":11.014,"orden":23},
+            {"nota":"C#5","duracion":"8n","tiempo":11.304,"orden":24},
+            {"nota":"B4","duracion":"2n","tiempo":11.594,"orden":25},
+            {"nota":"A4","duracion":"1n","tiempo":13.333,"orden":26},
+            {"nota":"B4","duracion":"1n","tiempo":16.811,"orden":27},
+            {"nota":"C#5","duracion":"8n","tiempo":19.71,"orden":28},
+            {"nota":"D5","duracion":"8n","tiempo":20.0,"orden":29},
+            {"nota":"E5","duracion":"4n","tiempo":20.29,"orden":30},
+            {"nota":"C#5","duracion":"8n","tiempo":20.869,"orden":31},
+            {"nota":"E5","duracion":"8n","tiempo":21.159,"orden":32},
+            {"nota":"D5","duracion":"8n","tiempo":21.449,"orden":33},
+            {"nota":"C#5","duracion":"8n","tiempo":21.739,"orden":34},
+            {"nota":"B4","duracion":"2n","tiempo":22.029,"orden":35},
+            {"nota":"B4","duracion":"2n","tiempo":22.898,"orden":36},
+            {"nota":"D5","duracion":"2n","tiempo":23.768,"orden":37},
+            {"nota":"C#5","duracion":"2n","tiempo":24.637,"orden":38},
+            {"nota":"B4","duracion":"2n","tiempo":25.507,"orden":39},
+            {"nota":"C#5","duracion":"2n","tiempo":27.246,"orden":40},
+            {"nota":"C#5","duracion":"4n","tiempo":28.116,"orden":41},
+            {"nota":"B4","duracion":"8n","tiempo":28.695,"orden":42},
+            {"nota":"A4","duracion":"2n","tiempo":28.985,"orden":43},
+            {"nota":"D5","duracion":"2n","tiempo":30.724,"orden":44},
+            {"nota":"D5","duracion":"4n","tiempo":31.594,"orden":45},
+            {"nota":"C#5","duracion":"8n","tiempo":32.174,"orden":46},
+            {"nota":"B4","duracion":"2n","tiempo":32.464,"orden":47},
+            {"nota":"C#5","duracion":"8n","tiempo":33.623,"orden":48},
+            {"nota":"D5","duracion":"8n","tiempo":33.913,"orden":49},
+            {"nota":"E5","duracion":"1n","tiempo":34.203,"orden":50},
+            {"nota":"F#5","duracion":"2n","tiempo":35.942,"orden":51},
+            {"nota":"B4","duracion":"8n","tiempo":37.101,"orden":52},
+            {"nota":"A4","duracion":"8n","tiempo":37.391,"orden":53},
+            {"nota":"B4","duracion":"2n","tiempo":37.681,"orden":54},
+            {"nota":"A4","duracion":"8n","tiempo":38.84,"orden":55},
+            {"nota":"B4","duracion":"8n","tiempo":39.13,"orden":56},
+            {"nota":"C#5","duracion":"8n","tiempo":39.42,"orden":57},
+            {"nota":"C#5","duracion":"8n","tiempo":40.0,"orden":58},
+            {"nota":"C#5","duracion":"4n","tiempo":40.579,"orden":59},
+            {"nota":"A4","duracion":"8n","tiempo":41.159,"orden":60},
+            {"nota":"B4","duracion":"8n","tiempo":41.449,"orden":61},
+            {"nota":"C#5","duracion":"1n","tiempo":41.739,"orden":62},
+            {"nota":"C#5","duracion":"8n","tiempo":43.768,"orden":63},
+            {"nota":"B4","duracion":"8n","tiempo":44.058,"orden":64},
+            {"nota":"A4","duracion":"8n","tiempo":44.348,"orden":65},
+            {"nota":"F#4","duracion":"4n","tiempo":44.637,"orden":66},
+            {"nota":"B4","duracion":"2n","tiempo":45.217,"orden":67},
+            {"nota":"A4","duracion":"8n","tiempo":46.666,"orden":68},
+            {"nota":"B4","duracion":"8n","tiempo":46.956,"orden":69},
+            {"nota":"C#5","duracion":"8n","tiempo":47.246,"orden":70},
+            {"nota":"B4","duracion":"8n","tiempo":47.536,"orden":71},
+            {"nota":"A4","duracion":"8n","tiempo":47.826,"orden":72},
+            {"nota":"E4","duracion":"4n","tiempo":48.116,"orden":73},
+            {"nota":"C#5","duracion":"1n","tiempo":48.695,"orden":74},
+            {"nota":"C#5","duracion":"8n","tiempo":50.724,"orden":75},
+            {"nota":"B4","duracion":"8n","tiempo":51.014,"orden":76},
+            {"nota":"A4","duracion":"8n","tiempo":51.304,"orden":77},
+            {"nota":"E5","duracion":"1n","tiempo":51.594,"orden":78},
+            {"nota":"C#5","duracion":"8n","tiempo":54.203,"orden":79},
+            {"nota":"B4","duracion":"8n","tiempo":54.492,"orden":80},
+            {"nota":"A4","duracion":"8n","tiempo":54.782,"orden":81},
+            {"nota":"A4","duracion":"8n","tiempo":55.072,"orden":82},
+            {"nota":"C#5","duracion":"8n","tiempo":55.652,"orden":83},
+            {"nota":"E5","duracion":"4n","tiempo":55.942,"orden":84},
+            {"nota":"C#5","duracion":"8n","tiempo":56.521,"orden":85},
+            {"nota":"E5","duracion":"8n","tiempo":56.811,"orden":86},
+            {"nota":"C#5","duracion":"4n","tiempo":57.101,"orden":87},
+            {"nota":"B4","duracion":"8n","tiempo":57.971,"orden":88},
+            {"nota":"A4","duracion":"8n","tiempo":58.261,"orden":89},
+            {"nota":"B4","duracion":"2n","tiempo":58.55,"orden":90},
+            {"nota":"B4","duracion":"8n","tiempo":59.42,"orden":91},
+            {"nota":"A4","duracion":"8n","tiempo":59.71,"orden":92},
+            {"nota":"C#5","duracion":"8n","tiempo":60.0,"orden":93},
+            {"nota":"B4","duracion":"2n","tiempo":60.29,"orden":94},
+            {"nota":"C#5","duracion":"8n","tiempo":62.319,"orden":95},
+            {"nota":"D5","duracion":"8n","tiempo":62.608,"orden":96},
+            {"nota":"E5","duracion":"4n","tiempo":62.898,"orden":97},
+            {"nota":"C#5","duracion":"8n","tiempo":63.478,"orden":98},
+            {"nota":"E5","duracion":"2n","tiempo":63.768,"orden":99},
+            {"nota":"B4","duracion":"8n","tiempo":64.927,"orden":100},
+            {"nota":"A4","duracion":"8n","tiempo":65.217,"orden":101},
+            {"nota":"B4","duracion":"4n","tiempo":65.507,"orden":102},
+            {"nota":"A4","duracion":"8n","tiempo":66.087,"orden":103},
+            {"nota":"B4","duracion":"8n","tiempo":66.377,"orden":104},
+            {"nota":"A4","duracion":"8n","tiempo":66.666,"orden":105},
+            {"nota":"C#5","duracion":"8n","tiempo":66.956,"orden":106},
+            {"nota":"B4","duracion":"2n","tiempo":67.246,"orden":107},
+            {"nota":"A4","duracion":"1n","tiempo":68.985,"orden":108},
+            {"nota":"B4","duracion":"1n","tiempo":72.464,"orden":109},
+            {"nota":"C#5","duracion":"8n","tiempo":75.362,"orden":110},
+            {"nota":"D5","duracion":"8n","tiempo":75.652,"orden":111},
+            {"nota":"E5","duracion":"4n","tiempo":75.942,"orden":112},
+            {"nota":"C#5","duracion":"8n","tiempo":76.521,"orden":113},
+            {"nota":"E5","duracion":"8n","tiempo":76.811,"orden":114},
+            {"nota":"D5","duracion":"8n","tiempo":77.101,"orden":115},
+            {"nota":"C#5","duracion":"8n","tiempo":77.391,"orden":116},
+            {"nota":"B4","duracion":"2n","tiempo":77.681,"orden":117},
+            {"nota":"B4","duracion":"2n","tiempo":78.55,"orden":118},
+            {"nota":"D5","duracion":"2n","tiempo":79.42,"orden":119},
+            {"nota":"C#5","duracion":"2n","tiempo":80.29,"orden":120},
+            {"nota":"B4","duracion":"2n","tiempo":81.159,"orden":121},
+            {"nota":"C#5","duracion":"2n","tiempo":82.898,"orden":122},
+            {"nota":"C#5","duracion":"4n","tiempo":83.768,"orden":123},
+            {"nota":"B4","duracion":"8n","tiempo":84.348,"orden":124},
+            {"nota":"A4","duracion":"2n","tiempo":84.637,"orden":125},
+            {"nota":"D5","duracion":"2n","tiempo":86.377,"orden":126},
+            {"nota":"D5","duracion":"4n","tiempo":87.246,"orden":127},
+            {"nota":"C#5","duracion":"8n","tiempo":87.826,"orden":128},
+            {"nota":"B4","duracion":"2n","tiempo":88.116,"orden":129},
+            {"nota":"C#5","duracion":"8n","tiempo":89.275,"orden":130},
+            {"nota":"D5","duracion":"8n","tiempo":89.565,"orden":131},
+            {"nota":"E5","duracion":"1n","tiempo":89.855,"orden":132},
+            {"nota":"F#5","duracion":"2n","tiempo":91.594,"orden":133},
+            {"nota":"B4","duracion":"8n","tiempo":92.753,"orden":134},
+            {"nota":"A4","duracion":"8n","tiempo":93.043,"orden":135},
+            {"nota":"B4","duracion":"2n","tiempo":93.333,"orden":136},
+            {"nota":"A4","duracion":"8n","tiempo":94.492,"orden":137},
+            {"nota":"B4","duracion":"8n","tiempo":94.782,"orden":138},
+            {"nota":"C#5","duracion":"8n","tiempo":95.072,"orden":139},
+            {"nota":"C#5","duracion":"8n","tiempo":95.652,"orden":140},
+            {"nota":"C#5","duracion":"4n","tiempo":96.232,"orden":141},
+            {"nota":"A4","duracion":"8n","tiempo":96.811,"orden":142},
+            {"nota":"B4","duracion":"8n","tiempo":97.101,"orden":143},
+            {"nota":"C#5","duracion":"1n","tiempo":97.391,"orden":144},
+            {"nota":"C#5","duracion":"8n","tiempo":99.42,"orden":145},
+            {"nota":"B4","duracion":"8n","tiempo":99.71,"orden":146},
+            {"nota":"A4","duracion":"8n","tiempo":100.0,"orden":147},
+            {"nota":"F#4","duracion":"4n","tiempo":100.29,"orden":148},
+            {"nota":"B4","duracion":"2n","tiempo":100.869,"orden":149},
+            {"nota":"A4","duracion":"8n","tiempo":102.319,"orden":150},
+            {"nota":"B4","duracion":"8n","tiempo":102.608,"orden":151},
+            {"nota":"C#5","duracion":"8n","tiempo":102.898,"orden":152},
+            {"nota":"B4","duracion":"8n","tiempo":103.188,"orden":153},
+            {"nota":"A4","duracion":"8n","tiempo":103.478,"orden":154},
+            {"nota":"E4","duracion":"4n","tiempo":103.768,"orden":155},
+            {"nota":"C#5","duracion":"1n","tiempo":104.348,"orden":156},
+            {"nota":"C#5","duracion":"8n","tiempo":106.377,"orden":157},
+            {"nota":"B4","duracion":"8n","tiempo":106.666,"orden":158},
+            {"nota":"A4","duracion":"8n","tiempo":106.956,"orden":159},
+            {"nota":"E5","duracion":"1n","tiempo":107.246,"orden":160},
+            {"nota":"C#5","duracion":"8n","tiempo":109.855,"orden":161},
+            {"nota":"B4","duracion":"8n","tiempo":110.145,"orden":162},
+            {"nota":"A4","duracion":"8n","tiempo":110.435,"orden":163},
+            {"nota":"A4","duracion":"8n","tiempo":110.724,"orden":164},
+            {"nota":"A4","duracion":"8n","tiempo":138.55,"orden":165},
+            {"nota":"A4","duracion":"1n","tiempo":161.157,"orden":166}
+        ];
         
         this.init();
     }
@@ -204,6 +209,10 @@ class XylophoneApp {
         if (!this.sampler) {
             await Tone.start();
             
+            // 🎚️ 1. PRIMERO: Crear el nodo maestro de volumen (inicia en -3dB para evitar distorsión)
+            this.masterVolume = new Tone.Volume(-3).toDestination();
+            
+            // 2. Crear el sampler y conectarlo al nodo maestro
             this.sampler = new Tone.Sampler({
                 urls: {
                     "C4": "C4.wav", "C#4": "Cs4.wav", "D4": "D4.wav", "D#4": "Ds4.wav",
@@ -214,7 +223,7 @@ class XylophoneApp {
                     "G#5": "Gs5.wav", "A5": "A5.wav"
                 },
                 baseUrl: "./samples/xilofono/",
-                volume: -3,
+                volume: 0, // El volumen base lo controla el masterVolume
                 onload: () => {
                     console.log("✅ Sonidos reales de xilófono cargados correctamente");
                     this.isAudioReady = true;
@@ -222,16 +231,18 @@ class XylophoneApp {
                 onerror: (error) => {
                     console.error("❌ Error al cargar los archivos de audio:", error);
                 }
-            }).toDestination();
+            }).connect(this.masterVolume); // 🎚️ Conectado al nodo maestro
             
-            const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).toDestination();
+            // 3. Crear la reverberación y conectarla también al nodo maestro
+            const reverb = new Tone.Reverb({ decay: 1.2, wet: 0.25 }).connect(this.masterVolume);
             this.sampler.connect(reverb);
 
-            // 🎓 NUEVO: Sintetizador para el clic del metrónomo
+            // 4. 🎓 Sintetizador para el clic del metrónomo, conectado al nodo maestro
             this.metronomoSynth = new Tone.MembraneSynth({
                 pitchDecay: 0.008, octaves: 2,
                 envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
-            }).toDestination();
+            }).connect(this.masterVolume); // 🎚️ Conectado al nodo maestro
+            
             this.metronomoSynth.volume.value = -10; // Volumen suave para el clic
         }
         
@@ -309,7 +320,7 @@ class XylophoneApp {
                     
                     key.appendChild(label);
                     key.appendChild(idx);
-                    key.style.left = `${relativeX - 25}px`; // 50px / 2
+                    key.style.left = `${relativeX - 25}px`;
                     
                     key.addEventListener('mousedown', () => this.handleKeyPress(sharpNote, key));
                     key.addEventListener('touchstart', (e) => {
@@ -330,20 +341,41 @@ class XylophoneApp {
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
         
-        // 🎓 NUEVO: Listener para el Modo Práctica Guiada
+        // 🎓 Listener para el Modo Práctica Guiada
         document.getElementById('btnGuideMode').addEventListener('click', () => this.toggleModoGuiado());
         
-        // 🎓 NUEVO: Listener para el control de velocidad
+        // 🎓 Listener para el control de velocidad
         document.getElementById('bpmSlider').addEventListener('input', (e) => {
             document.getElementById('bpmValue').textContent = e.target.value;
             if (this.modoGuiaActivo) {
                 Tone.Transport.bpm.value = parseInt(e.target.value);
             }
         });
+
+        // 🎚️ Listener para el volumen (Controla todo el audio maestro)
+        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+            const porcentaje = parseInt(e.target.value);
+            document.getElementById('volumeValue').textContent = porcentaje;
+            this.volumenNotas = porcentaje / 100;
+            
+            if (this.masterVolume) {
+                // Convertir 0-100% a decibeles (0% = -40dB, 100% = 0dB)
+                const db = porcentaje === 0 ? -40 : (20 * Math.log10(this.volumenNotas));
+                this.masterVolume.volume.rampTo(db, 0.1);
+            }
+        });
+
+        // 🔔 Listener para el metrónomo
+        document.getElementById('metroToggle').addEventListener('change', (e) => {
+            this.metronomoActivo = e.target.checked;
+        });
+
+        // 🔁 Listener para reiniciar el ejercicio
+        document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise());
     }
 
     toggleMode() {
-        this.detenerSecuenciaGuiada(); // 🎓 Asegurar que se detenga si cambiamos de modo
+        this.detenerSecuenciaGuiada();
         this.isFamiliarizing = !this.isFamiliarizing;
         const btn = document.getElementById('btnMode');
         if (this.isFamiliarizing) {
@@ -359,7 +391,7 @@ class XylophoneApp {
     }
     
     generateNewMelody() {
-        this.detenerSecuenciaGuiada(); // 🎓 Detener guía si se genera nueva melodía
+        this.detenerSecuenciaGuiada();
         this.userMelody = [];
         this.clearKeyboardHighlights();
         document.getElementById('scoreDisplay').style.display = 'none';
@@ -452,7 +484,7 @@ class XylophoneApp {
         document.querySelectorAll('.natural-key, .sharp-key').forEach(key => {
             key.classList.remove('correct', 'incorrect', 'active-guide');
         });
-        document.querySelectorAll('.order-number').forEach(el => el.remove()); // 🎓 Limpiar números
+        document.querySelectorAll('.order-number').forEach(el => el.remove());
     }
     
     checkMelody() {
@@ -599,7 +631,7 @@ class XylophoneApp {
     }
 
     // =========================================================================
-    // 🎓 MÉTODOS NUEVOS: MODO PRÁCTICA GUIADA
+    // 🎓 MODO PRÁCTICA GUIADA
     // =========================================================================
     
     toggleModoGuiado() {
@@ -627,36 +659,34 @@ class XylophoneApp {
         Tone.Transport.cancel();
         this.clearKeyboardHighlights();
 
-        // 1. Metrónomo (clic en cada negra)
+        // Metrónomo (clic en cada negra)
         this.metroLoop = new Tone.Loop((time) => {
-    // Solo suena el clic si el metrónomo está activado
-    if (this.metronomoActivo) {
-        this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
-        Tone.Draw.schedule(() => {
-            const pulso = document.getElementById('metronomoPulso');
-            if (pulso) {
-                pulso.classList.add('pulso-activo');
-                setTimeout(() => pulso.classList.remove('pulso-activo'), 150);
+            if (this.metronomoActivo) {
+                this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
+                Tone.Draw.schedule(() => {
+                    const pulso = document.getElementById('metronomoPulso');
+                    if (pulso) {
+                        pulso.classList.add('pulso-activo');
+                        setTimeout(() => pulso.classList.remove('pulso-activo'), 150);
+                    }
+                }, time);
+            } else {
+                // Si está desactivado, solo hace el pulso visual suave (sin sonido)
+                Tone.Draw.schedule(() => {
+                    const pulso = document.getElementById('metronomoPulso');
+                    if (pulso) {
+                        pulso.style.background = '#444';
+                        setTimeout(() => pulso.style.background = '#666', 150);
+                    }
+                }, time);
             }
-        }, time);
-    } else {
-        // Si está desactivado, solo hace el pulso visual suave (sin sonido)
-        Tone.Draw.schedule(() => {
-            const pulso = document.getElementById('metronomoPulso');
-            if (pulso) {
-                pulso.style.background = '#444';
-                setTimeout(() => pulso.style.background = '#666', 150);
-            }
-        }, time);
-    }
-}, "4n");
+        }, "4n");
 
-        // 2. Melodía guiada
+        // Melodía guiada
         this.guiaPart = new Tone.Part((time, value) => {
-            // Usamos el mismo sampler para que suene idéntico al resto de la app
-           this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
+            // Usamos el volumen controlado por el slider
+            this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             
-            // Sincronización visual perfecta con el audio
             Tone.Draw.schedule(() => {
                 this.resaltarTecla(value.nota, value.orden);
             }, time);
@@ -694,21 +724,37 @@ class XylophoneApp {
     }
 
     resaltarTecla(nota, orden) {
-        // Limpiar resaltados anteriores
         document.querySelectorAll('.active-guide').forEach(el => el.classList.remove('active-guide'));
         document.querySelectorAll('.order-number').forEach(el => el.remove());
 
-        // Buscar la tecla por su atributo data-note (funciona para .natural-key y .sharp-key)
         const tecla = document.querySelector(`[data-note="${nota}"]`);
         if (tecla) {
             tecla.classList.add('active-guide');
             
-            // Crear el número de orden
             const numEl = document.createElement('div');
             numEl.className = 'order-number';
             numEl.textContent = orden;
             tecla.appendChild(numEl);
         }
+    }
+
+    // =========================================================================
+    // 🔁 REINICIAR EJERCICIO
+    // =========================================================================
+    restartExercise() {
+        this.detenerSecuenciaGuiada();
+        this.userMelody = [];
+        this.clearKeyboardHighlights();
+        document.getElementById('scoreDisplay').style.display = 'none';
+        
+        const feedback = document.getElementById('feedback');
+        feedback.style.color = '#fff';
+        if (this.isFamiliarizing) {
+            feedback.textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
+        } else {
+            feedback.textContent = '📝 Presiona "Escuchar" para volver a intentar la melodía.';
+        }
+        console.log('🔁 Ejercicio reiniciado. Misma melodía, listo para reintentar.');
     }
 }
 
