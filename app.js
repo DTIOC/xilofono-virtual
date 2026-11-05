@@ -226,8 +226,7 @@ class XylophoneApp {
                 },
                 onerror: (err) => {
                     console.error("❌ ERROR CRÍTICO: No se pudieron cargar los sonidos:", err);
-                    alert("⚠️ ERROR DE AUDIO: No se encontraron los archivos .wav en la carpeta 'samples/xilofono/'. Revisa que estén subidos a GitHub.");
-                    this.isAudioReady = true; // Permitir que la app continúe
+                    this.isAudioReady = true;
                 }
             }).connect(this.masterVolume);
             
@@ -323,7 +322,7 @@ class XylophoneApp {
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
         document.getElementById('btnGuideMode').addEventListener('click', () => this.toggleModoGuiado());
-        document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise()); // ✅ Listener del botón Reiniciar
+        document.getElementById('btnRestart').addEventListener('click', () => this.restartExercise());
         
         document.getElementById('bpmSlider').addEventListener('input', (e) => {
             document.getElementById('bpmValue').textContent = e.target.value;
@@ -401,7 +400,6 @@ class XylophoneApp {
     
     async handleKeyPress(note, keyElement) {
         await this.initAudio();
-        console.log(`🎵 Tocando nota: ${note}`);
         this.sampler.triggerAttackRelease(note, '8n');
         keyElement.classList.add('active');
         setTimeout(() => keyElement.classList.remove('active'), 200);
@@ -559,11 +557,15 @@ class XylophoneApp {
 
         const bpm = parseInt(document.getElementById('bpmSlider').value);
         Tone.Transport.bpm.value = bpm;
+        
+        // 🛠️ FIX: Detener, cancelar y REWIND (rebobinar) el reloj de Tone.js a 0
         Tone.Transport.stop();
         Tone.Transport.cancel();
+        Tone.Transport.seconds = 0; // <--- ¡ESTA LÍNEA SOLUCIONA EL ERROR!
+        
         this.clearKeyboardHighlights();
 
-        const ajusteMetrónomo = -0.58; 
+        const ajusteMetrónomo = 0; // Ajustado a 0 para evitar errores de tiempo negativo al reiniciar
 
         this.metroLoop = new Tone.Loop((time) => {
             if (this.metronomoActivo) {
@@ -587,7 +589,6 @@ class XylophoneApp {
         }, "4n").start(ajusteMetrónomo);
 
         this.guiaPart = new Tone.Part((time, value) => {
-            console.log(`🎵 Reproduciendo: ${value.nota} en tiempo ${time}`);
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             Tone.Draw.schedule(() => this.resaltarTecla(value.nota, value.orden), time);
         }, this.melodiaConcierto.map(n => [n.tiempo, n]));
