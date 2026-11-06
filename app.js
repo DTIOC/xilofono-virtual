@@ -593,7 +593,7 @@ class XylophoneApp {
         // 🎯 AJUSTE DE SINCRONIZACIÓN:
         // Si el metrónomo suena DESPUÉS de la nota, aumenta este valor (ej. 0.15, 0.2, 0.58)
         // Esto retrasa ligeramente la melodía para que el metrónomo (que empieza en 0) la "espere".
-        const offsetMelodia = 0.25; 
+        const offsetMelodia = 0.40; 
 
         this.guiaPart = new Tone.Part((time, value) => {
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
