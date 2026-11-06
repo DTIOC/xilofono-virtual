@@ -16,7 +16,7 @@ class XylophoneApp {
 
         this.modoGuiaActivo = false;
         this.guiaPart = null;
-        this.metroEvent = null; // Cambiado de metroLoop a metroEvent para mayor estabilidad
+        this.metroEvent = null;
         this.metronomoSynth = null;
         
         this.volumenNotas = 0.7;
@@ -563,13 +563,12 @@ class XylophoneApp {
         const bpm = parseInt(document.getElementById('bpmSlider').value);
         Tone.Transport.bpm.value = bpm;
         
-        // Limpiar y rebobinar el transporte de forma segura
         Tone.Transport.stop();
         Tone.Transport.cancel();
         
         this.clearKeyboardHighlights();
 
-        // ✅ USAMOS scheduleRepeat EN LUGAR DE Loop PARA EVITAR ERRORES DE TIEMPO NEGATIVO
+        // Metrónomo estable empezando exactamente en 0
         this.metroEvent = Tone.Transport.scheduleRepeat((time) => {
             if (this.metronomoActivo) {
                 this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
@@ -589,17 +588,24 @@ class XylophoneApp {
                     }
                 }, time);
             }
-        }, "4n", "0"); // Comienza exactamente en 0
+        }, "4n", "0");
+
+        // 🎯 AJUSTE DE SINCRONIZACIÓN:
+        // Si el metrónomo suena DESPUÉS de la nota, aumenta este valor (ej. 0.15, 0.2, 0.58)
+        // Esto retrasa ligeramente la melodía para que el metrónomo (que empieza en 0) la "espere".
+        const offsetMelodia = 0.15; 
 
         this.guiaPart = new Tone.Part((time, value) => {
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
             Tone.Draw.schedule(() => this.resaltarTecla(value.nota, value.orden), time);
-        }, this.melodiaConcierto.map(n => [n.tiempo, n]));
+        }, this.melodiaConcierto.map(n => [n.tiempo + offsetMelodia, n]));
 
         this.guiaPart.start(0);
         Tone.Transport.start();
 
-        const duracionTotal = this.melodiaConcierto[this.melodiaConcierto.length - 1].tiempo + 3;
+        const ultimaNota = this.melodiaConcierto[this.melodiaConcierto.length - 1];
+        const duracionTotal = (ultimaNota.tiempo + offsetMelodia) + 3;
+        
         Tone.Transport.schedule(() => {
             this.detenerSecuenciaGuiada();
             document.getElementById('feedback').textContent = '✅ ¡Melodía terminada!';
