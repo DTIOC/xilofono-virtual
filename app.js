@@ -16,7 +16,7 @@ class XylophoneApp {
 
         this.modoGuiaActivo = false;
         this.guiaPart = null;
-        this.metroLoop = null;
+        this.metroEvent = null; // Cambiado de metroLoop a metroEvent para mayor estabilidad
         this.metronomoSynth = null;
         
         this.volumenNotas = 0.7;
@@ -209,7 +209,6 @@ class XylophoneApp {
             
             this.masterVolume = new Tone.Volume(-3).toDestination();
             
-            // 🛡️ PROMESA: Obliga al código a esperar a que los sonidos carguen
             const loadPromise = new Promise((resolve) => {
                 this.sampler = new Tone.Sampler({
                     urls: {
@@ -244,7 +243,6 @@ class XylophoneApp {
             
             this.metronomoSynth.volume.value = -10;
 
-            // ⏳ Esperamos aquí hasta que la promesa se resuelva (sonidos cargados)
             await loadPromise;
         }
     }
@@ -565,17 +563,14 @@ class XylophoneApp {
         const bpm = parseInt(document.getElementById('bpmSlider').value);
         Tone.Transport.bpm.value = bpm;
         
-        // Detener, cancelar y REBOBINAR el reloj a 0
+        // Limpiar y rebobinar el transporte de forma segura
         Tone.Transport.stop();
         Tone.Transport.cancel();
-        Tone.Transport.seconds = 0; 
         
         this.clearKeyboardHighlights();
 
-        // 🎯 Ajuste de las 2 corcheas de tresillo (0.58s)
-        const ajusteMetrónomo = -0.58; 
-
-        this.metroLoop = new Tone.Loop((time) => {
+        // ✅ USAMOS scheduleRepeat EN LUGAR DE Loop PARA EVITAR ERRORES DE TIEMPO NEGATIVO
+        this.metroEvent = Tone.Transport.scheduleRepeat((time) => {
             if (this.metronomoActivo) {
                 this.metronomoSynth.triggerAttackRelease("C6", "32n", time, 0.5);
                 Tone.Draw.schedule(() => {
@@ -594,7 +589,7 @@ class XylophoneApp {
                     }
                 }, time);
             }
-        }, "4n").start(ajusteMetrónomo);
+        }, "4n", "0"); // Comienza exactamente en 0
 
         this.guiaPart = new Tone.Part((time, value) => {
             this.sampler.triggerAttackRelease(value.nota, value.duracion, time, this.volumenNotas);
@@ -617,7 +612,7 @@ class XylophoneApp {
         Tone.Transport.stop();
         Tone.Transport.cancel();
         if (this.guiaPart) { this.guiaPart.dispose(); this.guiaPart = null; }
-        if (this.metroLoop) { this.metroLoop.dispose(); this.metroLoop = null; }
+        if (this.metroEvent) { Tone.Transport.clear(this.metroEvent); this.metroEvent = null; }
         this.clearKeyboardHighlights();
         
         const btn = document.getElementById('btnGuideMode');
